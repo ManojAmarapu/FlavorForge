@@ -16,7 +16,12 @@ const generateToken = (id) => {
 // @route   GET /api/auth/google
 router.get(
     '/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
+    passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        prompt: 'select_account consent',
+        accessType: 'offline',
+        includeGrantedScopes: false
+    })
 );
 
 // @desc    Google auth callback
