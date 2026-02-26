@@ -7,6 +7,7 @@ import { IngredientInput } from './IngredientInput';
 import { DishLookup } from './DishLookup';
 import { RecipeCard } from './RecipeCard';
 import { RecipeDetail } from './RecipeDetail';
+import { Skeleton } from './ui/Skeleton';
 
 export const RecipeGenerator: React.FC = () => {
   const [ingredients, setIngredients] = useState<string[]>([]);
@@ -22,7 +23,7 @@ export const RecipeGenerator: React.FC = () => {
     if (savedFavorites) {
       setFavorites(JSON.parse(savedFavorites));
     }
-    
+
     // Show random recipes on initial load
     setRecipes(getRandomRecipes(6));
   }, []);
@@ -40,22 +41,22 @@ export const RecipeGenerator: React.FC = () => {
       alert('Please enter some ingredients first!');
       return;
     }
-    
+
     setIsGenerating(true);
     setShowFavorites(false);
-    
+
     // Simulate API call delay for better UX
     await new Promise(resolve => setTimeout(resolve, 1200));
-    
+
     // Generate multiple custom recipes with user's exact ingredients
     const customRecipes = generateMultipleCustomRecipes(ingredients);
-    
+
     // Also find matching recipes from database
     const databaseRecipes = generateRecipes(ingredients);
-    
+
     // Combine custom recipes with database matches
     const allRecipes = [...customRecipes, ...databaseRecipes];
-    
+
     setRecipes(allRecipes);
     setIsGenerating(false);
   };
@@ -66,8 +67,8 @@ export const RecipeGenerator: React.FC = () => {
   };
 
   const handleToggleFavorite = (recipeId: string) => {
-    setFavorites(prev => 
-      prev.includes(recipeId) 
+    setFavorites(prev =>
+      prev.includes(recipeId)
         ? prev.filter(id => id !== recipeId)
         : [...prev, recipeId]
     );
@@ -115,11 +116,10 @@ export const RecipeGenerator: React.FC = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('ingredients')}
-              className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 flex-1 sm:flex-none touch-manipulation ${
-                activeTab === 'ingredients'
-                  ? 'bg-emerald-500 text-white shadow-lg'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+              className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 flex-1 sm:flex-none touch-manipulation ${activeTab === 'ingredients'
+                ? 'bg-emerald-500 text-white shadow-lg'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
             >
               <Utensils className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">From Ingredients</span>
@@ -127,11 +127,10 @@ export const RecipeGenerator: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('dish')}
-              className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 flex-1 sm:flex-none touch-manipulation ${
-                activeTab === 'dish'
-                  ? 'bg-blue-500 text-white shadow-lg'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
+              className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 flex-1 sm:flex-none touch-manipulation ${activeTab === 'dish'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
             >
               <ChefHat className="h-4 w-4 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">By Dish Name</span>
@@ -151,7 +150,7 @@ export const RecipeGenerator: React.FC = () => {
             </h2>
           </div>
           <IngredientInput onIngredientsChange={handleIngredientsChange} />
-          
+
           {ingredients.length > 0 && (
             <div className="mt-4">
               <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -169,7 +168,7 @@ export const RecipeGenerator: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
             <button
               onClick={handleGenerateRecipes}
@@ -188,14 +187,13 @@ export const RecipeGenerator: React.FC = () => {
                 </>
               )}
             </button>
-            
+
             <button
               onClick={() => setShowFavorites(!showFavorites)}
-              className={`flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base font-medium rounded-lg transition-all duration-200 shadow-lg touch-manipulation active:scale-95 ${
-                showFavorites
-                  ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
-              }`}
+              className={`flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base font-medium rounded-lg transition-all duration-200 shadow-lg touch-manipulation active:scale-95 ${showFavorites
+                ? 'bg-red-500 hover:bg-red-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
+                }`}
             >
               <Heart className={`h-4 w-4 ${showFavorites ? 'fill-current' : ''}`} />
               <span className="hidden sm:inline">
@@ -221,41 +219,70 @@ export const RecipeGenerator: React.FC = () => {
               {displayRecipes.length} recipe{displayRecipes.length !== 1 ? 's' : ''} found
             </div>
           </div>
-          
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {displayRecipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                isFavorite={favorites.includes(recipe.id)}
-                onToggleFavorite={handleToggleFavorite}
-                onSelectRecipe={handleSelectRecipe}
-              />
-            ))}
+            {isGenerating ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <Skeleton className="h-6 w-2/3" />
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-4/5" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+                  <Skeleton className="h-10 w-full mt-4" />
+                </div>
+              ))
+            ) : (
+              displayRecipes.map((recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  isFavorite={favorites.includes(recipe.id)}
+                  onToggleFavorite={handleToggleFavorite}
+                  onSelectRecipe={handleSelectRecipe}
+                />
+              ))
+            )}
           </div>
         </div>
       )}
 
       {showFavorites && favoriteRecipes.length === 0 && (
-        <div className="text-center py-8 sm:py-12">
-          <Heart className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <div className="text-center py-12 sm:py-16 bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 mx-4 sm:mx-0 shadow-sm transition-all duration-300">
+          <div className="bg-red-50 dark:bg-red-900/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Heart className="h-10 w-10 text-red-400 dark:text-red-500" />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             No favorite recipes yet
           </h3>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
-            Start exploring recipes and add them to your favorites!
+          <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-md mx-auto px-4 mb-8">
+            Start exploring recipes and add them to your favorites to access them quickly later!
           </p>
+          <button
+            onClick={() => setShowFavorites(false)}
+            className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-all duration-200 inline-flex items-center gap-2 touch-manipulation shadow-sm"
+          >
+            ← Back to All Recipes
+          </button>
         </div>
       )}
 
       {!showFavorites && displayRecipes.length === 0 && !isGenerating && (
-        <div className="text-center py-8 sm:py-12">
-          <ChefHat className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <div className="text-center py-16 bg-gradient-to-b from-white/50 to-transparent dark:from-gray-800/50 dark:to-transparent rounded-3xl mx-4 sm:mx-0 transition-all duration-500 border border-emerald-100/50 dark:border-emerald-900/20 shadow-sm">
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 transform hover:scale-110 transition-transform duration-300 shadow-inner">
+            <ChefHat className="h-12 w-12 text-emerald-500 dark:text-emerald-400" />
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 tracking-tight">
             Ready to cook something amazing?
           </h3>
-          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 px-4">
-            Enter your available ingredients or search for a specific dish to get started!
+          <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-lg mx-auto px-4 leading-relaxed">
+            Enter your available ingredients above or search for a specific dish to generate delicious recipes instantly!
           </p>
         </div>
       )}

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, Users, Star, Heart, Volume2, VolumeX } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Clock, Users, Heart, Volume2, VolumeX, Copy, Printer } from 'lucide-react';
 import { Recipe } from '../types/recipe';
+import { useToast } from '../contexts/ToastContext';
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -17,6 +19,20 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
+  const { showToast } = useToast();
+
+  const copyIngredients = () => {
+    const text = recipe.ingredients.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Ingredients copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Failed to copy ingredients', 'error');
+    });
+  };
+
+  const exportToPDF = () => {
+    window.print();
+  };
 
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -28,11 +44,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
         utterance.rate = 0.9;
         utterance.pitch = 1;
         utterance.volume = 1;
-        
+
         utterance.onstart = () => setIsReading(true);
         utterance.onend = () => setIsReading(false);
         utterance.onerror = () => setIsReading(false);
-        
+
         speechSynthesis.speak(utterance);
       }
     }
@@ -60,7 +76,13 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-0">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="max-w-4xl mx-auto px-4 sm:px-0"
+    >
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
         <div className="p-4 sm:p-6">
           <div className="flex items-center justify-between mb-6">
@@ -71,16 +93,32 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
               <ArrowLeft className="h-5 w-5 sm:h-5 sm:w-5" />
               <span className="text-sm sm:text-base">Back to recipes</span>
             </button>
-            <button
-              onClick={() => onToggleFavorite(recipe.id)}
-              className={`p-3 sm:p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${
-                isFavorite
-                  ? 'text-red-500 hover:text-red-600'
-                  : 'text-gray-400 hover:text-red-500'
-              }`}
-            >
-              <Heart className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={copyIngredients}
+                className="p-2 sm:p-2 text-gray-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-all duration-200 touch-manipulation"
+                title="Copy Ingredients"
+              >
+                <Copy className="h-5 w-5" />
+              </button>
+              <button
+                onClick={exportToPDF}
+                className="p-2 sm:p-2 text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-full transition-all duration-200 touch-manipulation"
+                title="Print / Export PDF"
+              >
+                <Printer className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => onToggleFavorite(recipe.id)}
+                className={`p-3 sm:p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${isFavorite
+                  ? 'text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30'
+                  }`}
+                title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              >
+                <Heart className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+            </div>
           </div>
 
           <div className="mb-6">
@@ -126,11 +164,10 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                 {recipe.ingredients.map((ingredient, index) => (
                   <li
                     key={index}
-                    className={`p-3 sm:p-3 rounded-lg border-l-4 text-sm sm:text-base ${
-                      recipe.matchedIngredients.includes(ingredient)
-                        ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 text-emerald-800 dark:text-emerald-200'
-                        : 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
-                    }`}
+                    className={`p-3 sm:p-3 rounded-lg border-l-4 text-sm sm:text-base ${recipe.matchedIngredients.includes(ingredient)
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 text-emerald-800 dark:text-emerald-200'
+                      : 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                      }`}
                   >
                     {ingredient}
                   </li>
@@ -146,13 +183,12 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                 {recipe.instructions.map((instruction, index) => (
                   <div
                     key={index}
-                    className={`p-3 sm:p-4 rounded-lg border-l-4 transition-all duration-300 ${
-                      index === currentStep
-                        ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 shadow-lg'
-                        : index < currentStep
+                    className={`p-3 sm:p-4 rounded-lg border-l-4 transition-all duration-300 ${index === currentStep
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500 shadow-lg'
+                      : index < currentStep
                         ? 'bg-green-50 dark:bg-green-900/20 border-green-500 opacity-75'
                         : 'bg-gray-50 dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 opacity-50'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -210,6 +246,6 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

@@ -1,6 +1,9 @@
-import React from 'react';
-import { Clock, Users, Star, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, Users, Heart, Save } from 'lucide-react';
 import { Recipe } from '../types/recipe';
+import { useAuth } from '../contexts/AuthContext';
+import { saveRecipe } from '../services/recipeService';
+import { useToast } from '../contexts/ToastContext';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -24,6 +27,24 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
     }
   };
 
+  const { user, token } = useAuth();
+  const { showToast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveRecipe = async () => {
+    if (!token) return;
+
+    setIsSaving(true);
+    try {
+      await saveRecipe(recipe, token);
+      showToast('Recipe saved!', 'success');
+    } catch (error: any) {
+      showToast(error.message || 'Failed to save', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700">
       <div className="p-6">
@@ -33,11 +54,10 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
           </h3>
           <button
             onClick={() => onToggleFavorite(recipe.id)}
-            className={`p-2 sm:p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${
-              isFavorite
-                ? 'text-red-500 hover:text-red-600'
-                : 'text-gray-400 hover:text-red-500'
-            }`}
+            className={`p-2 sm:p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${isFavorite
+              ? 'text-red-500 hover:text-red-600'
+              : 'text-gray-400 hover:text-red-500'
+              }`}
           >
             <Heart className={`h-5 w-5 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
           </button>
@@ -95,12 +115,31 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
           ))}
         </div>
 
-        <button
-          onClick={() => onSelectRecipe(recipe)}
-          className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg touch-manipulation"
-        >
-          View Recipe
-        </button>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => onSelectRecipe(recipe)}
+              className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg touch-manipulation"
+            >
+              View Recipe
+            </button>
+
+            {user && (
+              <button
+                onClick={handleSaveRecipe}
+                disabled={isSaving}
+                className="flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-transform duration-200 transform hover:scale-[1.05] active:scale-[0.95] block shadow-sm border border-gray-200 dark:border-gray-600"
+                title="Save to My Recipes"
+              >
+                {isSaving ? (
+                  <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-transparent rounded-full" />
+                ) : (
+                  <Save className="h-5 w-5 hover:text-emerald-500 transition-colors" />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
