@@ -26,9 +26,9 @@ router.get(
     passport.authenticate('google', { session: false, failureRedirect: '/login' }),
     (req, res) => {
         // Successful authentication, generate token and return it.
-        // Redirecting to the frontend application running on port 5173
+        // Redirecting to the frontend application
         const token = generateToken(req.user._id);
-        res.redirect(`http://localhost:5173/?token=${token}`);
+        res.redirect(`https://flavorforge-app.vercel.app/?token=${token}`);
     }
 );
 
