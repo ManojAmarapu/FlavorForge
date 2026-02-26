@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://flavorforge-tgch.onrender.com';
 
 export const loginWithGoogle = () => {
     window.location.href = `${API_URL}/auth/google`;

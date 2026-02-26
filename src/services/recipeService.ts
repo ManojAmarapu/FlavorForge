@@ -1,6 +1,6 @@
 import { Recipe } from '../types/recipe';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://flavorforge-tgch.onrender.com/api';
 
 export const saveRecipe = async (recipe: Recipe, token: string) => {
     const response = await fetch(`${API_URL}/recipes`, {
