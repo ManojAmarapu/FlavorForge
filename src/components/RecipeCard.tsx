@@ -45,7 +45,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
 
     setIsSaving(true);
     try {
-      await saveRecipe(recipe, token);
+      await saveRecipe(recipe, user.id, token);
       setIsSaved(true);
       showToast('Recipe saved!', 'success');
     } catch (error: any) {

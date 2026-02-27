@@ -2,7 +2,7 @@ import { Recipe } from '../types/recipe';
 
 const API_URL = 'https://flavorforge-tgch.onrender.com/api';
 
-export const saveRecipe = async (recipe: Recipe, token: string) => {
+export const saveRecipe = async (recipe: Recipe, userId: string, token: string) => {
     const response = await fetch(`${API_URL}/recipes`, {
         method: 'POST',
         headers: {
@@ -10,11 +10,9 @@ export const saveRecipe = async (recipe: Recipe, token: string) => {
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-            title: recipe.title,
-            ingredients: recipe.ingredients,
-            instructions: recipe.instructions,
-            cookingTime: recipe.cookingTime,
-            difficulty: recipe.difficulty,
+            userId,
+            recipeId: recipe.id,
+            recipe
         }),
     });
 

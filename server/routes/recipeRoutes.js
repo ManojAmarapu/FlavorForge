@@ -5,29 +5,37 @@ const { protect } = require('../middleware/authMiddleware');
 
 // @route   POST /api/recipes
 // @desc    Save recipe for logged-in user
-router.post('/', protect, async (req, res) => {
+// Frontend sends: { userId: string, recipeId: string, recipe: object }
+router.post('/', async (req, res) => {
     try {
-        const { title, ingredients, instructions, cookingTime, difficulty } = req.body;
+        const { userId, recipeId, recipe } = req.body;
 
-        // Check for duplicate recipe for this user
-        const existingRecipe = await Recipe.findOne({ user: req.user._id, title });
-        if (existingRecipe) {
-            return res.status(400).json({ message: 'Recipe with this title already exists for user' });
+        if (!userId || !recipeId || !recipe) {
+            return res.status(400).json({ message: "Missing required fields" });
         }
 
-        const recipe = await Recipe.create({
-            user: req.user._id,
-            title,
-            ingredients,
-            instructions,
-            cookingTime,
-            difficulty
+        const existing = await Recipe.findOne({
+            userId,
+            recipeId
         });
 
-        res.status(201).json(recipe);
+        if (existing) {
+            return res.status(400).json({ message: "Already saved" });
+        }
+
+        const newRecipe = new Recipe({
+            userId,
+            recipeId,
+            ...recipe
+        });
+
+        await newRecipe.save();
+
+        res.status(201).json({ message: "Recipe saved successfully" });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error("SAVE ROUTE ERROR:", error);
+        res.status(500).json({ message: error.message });
     }
 });
 
@@ -35,7 +43,7 @@ router.post('/', protect, async (req, res) => {
 // @desc    Return all recipes for logged-in user
 router.get('/', protect, async (req, res) => {
     try {
-        const recipes = await Recipe.find({ user: req.user._id }).sort({ createdAt: -1 });
+        const recipes = await Recipe.find({ userId: req.user._id.toString() }).sort({ createdAt: -1 });
         res.json(recipes);
     } catch (error) {
         console.error(error);
@@ -54,7 +62,7 @@ router.delete('/:id', protect, async (req, res) => {
         }
 
         // Make sure user owns the recipe
-        if (recipe.user.toString() !== req.user._id.toString()) {
+        if (recipe.userId !== req.user._id.toString()) {
             return res.status(401).json({ message: 'Not authorized' });
         }
 

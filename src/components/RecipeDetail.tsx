@@ -54,7 +54,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   };
 
   const handleSaveRecipe = async () => {
-    if (!token) {
+    if (!token || !user) {
       showToast('Please log in to save recipes', 'error');
       return;
     }
@@ -66,7 +66,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 
     setIsSaving(true);
     try {
-      await saveRecipe(recipe, token);
+      await saveRecipe(recipe, user.id, token);
       setIsSaved(true);
       showToast('Recipe saved successfully!', 'success');
     } catch (error: any) {
