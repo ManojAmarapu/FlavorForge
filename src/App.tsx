@@ -8,6 +8,7 @@ import { MyRecipes } from './pages/MyRecipes';
 import { IntroPage } from './pages/IntroPage';
 import { LoginPage } from './pages/LoginPage';
 import { AppDashboard } from './pages/AppDashboard';
+import { RecipeDetail } from './components/RecipeDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LogIn, LogOut, BookHeart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -129,6 +130,23 @@ const AnimatedRoutes = () => {
                       transition={{ duration: 0.3 }}
                     >
                       <AppDashboard />
+                    </motion.div>
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recipe/:id"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <RecipeDetail />
                     </motion.div>
                   </MainLayout>
                 </ProtectedRoute>

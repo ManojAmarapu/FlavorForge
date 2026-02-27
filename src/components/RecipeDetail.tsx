@@ -5,24 +5,23 @@ import {
   Play, Pause, SkipForward, Volume2, ChefHat, CheckCircle2, Circle,
   Timer as TimerIcon, X, List
 } from 'lucide-react';
-import { Recipe } from '../types/recipe';
+// import { Recipe } from '../types/recipe'; -> Not directly used for props anymore
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { saveRecipe, getMyRecipes } from '../services/recipeService';
 
-interface RecipeDetailProps {
-  recipe: Recipe;
-  isFavorite: boolean;
-  onToggleFavorite: (recipeId: string) => void;
-  onBack: () => void;
-}
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-export const RecipeDetail: React.FC<RecipeDetailProps> = ({
-  recipe,
-  isFavorite,
-  onToggleFavorite,
-  onBack
-}) => {
+export const RecipeDetail: React.FC = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const stateRecipe = location.state?.recipe;
+  const from = location.state?.from || 'dashboard';
+
+  const [recipe, setRecipe] = useState<any>(stateRecipe || null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -43,19 +42,61 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   const { user, token } = useAuth();
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Initial setup & check saved status
+  // Fetch fallback and initial states
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+
+    // Check favorites
+    const favs = JSON.parse(localStorage.getItem('recipe-favorites') || '[]');
+    setIsFavorite(favs.includes(id as string));
+
+    if (!recipe && id) {
+      // Handle backend fallback securely if state is lost and it's a saved recipe
+      if (token) {
+        getMyRecipes(token).then(saved => {
+          const savedMatch = saved.find((r: any) => r._id === id || r.id === id);
+          if (savedMatch) setRecipe(savedMatch);
+        }).catch(console.error);
+      }
+    }
+
     const checkSavedStatus = async () => {
-      if (!token) return;
+      if (!token || !recipe) return;
       try {
         const savedRecipes = await getMyRecipes(token);
         const alreadySaved = savedRecipes.some((r: any) => r.title === recipe.title);
         setIsSaved(alreadySaved);
       } catch (err) { }
     };
-    if (user) checkSavedStatus();
-  }, [recipe.title, token, user]);
+    if (user && recipe) checkSavedStatus();
+  }, [id, recipe, token, user]);
+
+  const onToggleFavorite = () => {
+    if (!recipe) return;
+    const favs = JSON.parse(localStorage.getItem('recipe-favorites') || '[]');
+    if (favs.includes(recipe.id || recipe._id)) {
+      const newFavs = favs.filter((fid: string) => fid !== (recipe.id || recipe._id));
+      localStorage.setItem('recipe-favorites', JSON.stringify(newFavs));
+      setIsFavorite(false);
+    } else {
+      favs.push(recipe.id || recipe._id);
+      localStorage.setItem('recipe-favorites', JSON.stringify(favs));
+      setIsFavorite(true);
+    }
+  };
+
+  const onBack = () => {
+    if (from === 'saved') navigate('/my-recipes');
+    else navigate('/app');
+  };
+
+  if (!recipe) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin h-8 w-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   // Voice Initialization
   useEffect(() => {
@@ -300,7 +341,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                   {isSaving ? <div className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full" /> : isSaved ? <BookmarkCheck className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
                 </button>
                 <button
-                  onClick={() => onToggleFavorite(recipe.id)}
+                  onClick={onToggleFavorite}
                   className={`p-2 rounded-full transition-all ${isFavorite ? 'text-red-500 hover:bg-red-50' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
                 >
                   <Heart className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} />
@@ -380,7 +421,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                       className={cookingMode ? "px-4 pb-4" : ""}
                     >
                       <ul className="space-y-2">
-                        {recipe.ingredients.map((ingredient, index) => {
+                        {recipe.ingredients.map((ingredient: string, index: number) => {
                           const isMatched = recipe.matchedIngredients?.includes(ingredient);
                           const isChecked = checkedIngredients.includes(index);
                           return (
@@ -437,7 +478,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                 )}
 
                 <div className="space-y-4">
-                  {recipe.instructions.map((instruction, index) => {
+                  {recipe.instructions.map((instruction: string, index: number) => {
                     const isActive = index === currentStep;
                     if (cookingMode && !isActive) return null; // Only show active step in cooking mode
 

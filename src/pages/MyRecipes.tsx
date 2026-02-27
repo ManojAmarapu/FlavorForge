@@ -243,7 +243,7 @@ export const MyRecipes: React.FC = () => {
                                 <div className="p-5 flex-grow">
                                     <div className="flex justify-between items-start mb-3">
                                         <h3
-                                            onClick={() => navigate(`/app`, { state: { recipe } })}
+                                            onClick={() => navigate(`/recipe/${recipe._id || recipe.id}`, { state: { recipe, from: 'saved' } })}
                                             className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer transition-colors"
                                         >
                                             {recipe.title}
@@ -297,7 +297,7 @@ export const MyRecipes: React.FC = () => {
                             </motion.div>
                         ))}
                     </AnimatePresence>
-                </motion.div>
+                </motion.div >
             )}
 
             <ModalPortal>
@@ -346,6 +346,6 @@ export const MyRecipes: React.FC = () => {
                     )}
                 </AnimatePresence>
             </ModalPortal>
-        </div>
+        </div >
     );
 };

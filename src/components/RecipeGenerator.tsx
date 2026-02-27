@@ -6,18 +6,16 @@ import { generateMultipleCustomRecipes } from '../utils/customRecipeGenerator';
 import { IngredientInput } from './IngredientInput';
 import { DishLookup } from './DishLookup';
 import { RecipeCard } from './RecipeCard';
-import { RecipeDetail } from './RecipeDetail';
 import { Skeleton } from './ui/Skeleton';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const RecipeGenerator: React.FC = () => {
   const location = useLocation();
-  const stateRecipe = location.state?.recipe;
+  const navigate = useNavigate();
 
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(stateRecipe || null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'dish'>('ingredients');
@@ -27,12 +25,21 @@ export const RecipeGenerator: React.FC = () => {
     if (savedFavorites) {
       setFavorites(JSON.parse(savedFavorites));
     }
+  }, []);
 
-    // Show random recipes on initial load if no state recipe
-    if (!stateRecipe) {
+  useEffect(() => {
+    // Generate fresh recipes on mount, tab change, or navigation return (location.key change)
+    if (activeTab === 'ingredients' && ingredients.length === 0) {
+      setRecipes(getRandomRecipes(6));
+    } else if (activeTab === 'ingredients' && ingredients.length > 0) {
+      const customRecipes = generateMultipleCustomRecipes(ingredients);
+      const databaseRecipes = generateRecipes(ingredients);
+      setRecipes([...customRecipes, ...databaseRecipes]);
+    } else {
       setRecipes(getRandomRecipes(6));
     }
-  }, [stateRecipe]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.key, activeTab]);
 
   useEffect(() => {
     localStorage.setItem('recipe-favorites', JSON.stringify(favorites));
@@ -81,26 +88,11 @@ export const RecipeGenerator: React.FC = () => {
   };
 
   const handleSelectRecipe = (recipe: Recipe) => {
-    setSelectedRecipe(recipe);
-  };
-
-  const handleBack = () => {
-    setSelectedRecipe(null);
+    navigate(`/recipe/${recipe.id}`, { state: { recipe, from: 'dashboard' } });
   };
 
   const favoriteRecipes = recipes.filter(recipe => favorites.includes(recipe.id));
   const displayRecipes = showFavorites ? favoriteRecipes : recipes;
-
-  if (selectedRecipe) {
-    return (
-      <RecipeDetail
-        recipe={selectedRecipe}
-        isFavorite={favorites.includes(selectedRecipe.id)}
-        onToggleFavorite={handleToggleFavorite}
-        onBack={handleBack}
-      />
-    );
-  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
