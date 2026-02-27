@@ -13,7 +13,7 @@ export default function CulinaryBackground() {
             </motion.div>
 
             <motion.div
-                className="absolute top-1/3 right-24 text-7xl opacity-40"
+                className="absolute top-1/2 right-16 text-7xl opacity-40"
                 animate={{ y: [0, 35, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -50,6 +50,30 @@ export default function CulinaryBackground() {
                 transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
             >
                 🥬
+            </motion.div>
+
+            <motion.div
+                className="absolute top-1/3 left-32 text-6xl opacity-30"
+                animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+            >
+                🥕
+            </motion.div>
+
+            <motion.div
+                className="absolute top-[20%] left-1/2 text-6xl opacity-28 -translate-x-1/2"
+                animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            >
+                🌶️
+            </motion.div>
+
+            <motion.div
+                className="absolute bottom-1/3 right-1/4 text-6xl opacity-30"
+                animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
+                transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+            >
+                🥦
             </motion.div>
 
         </div>
