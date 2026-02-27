@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Users, Heart, Volume2, VolumeX, Copy, Printer } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Heart, Volume2, VolumeX, Copy, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
+import { saveRecipe, getMyRecipes } from '../services/recipeService';
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -19,7 +21,28 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const { showToast } = useToast();
+  const { user, token } = useAuth();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    const checkSavedStatus = async () => {
+      if (!token) return;
+      try {
+        const savedRecipes = await getMyRecipes(token);
+        const alreadySaved = savedRecipes.some((r: any) => r.title === recipe.title);
+        setIsSaved(alreadySaved);
+      } catch (err) {
+        console.error("Failed to check saved status", err);
+      }
+    };
+    if (user) {
+      checkSavedStatus();
+    }
+  }, [recipe.title, token, user]);
 
   const copyIngredients = () => {
     const text = recipe.ingredients.join('\n');
@@ -30,8 +53,24 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
     });
   };
 
-  const exportToPDF = () => {
-    window.print();
+  const handleSaveRecipe = async () => {
+    if (!token) {
+      showToast('Please log in to save recipes', 'error');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await saveRecipe(recipe, token);
+      setIsSaved(true);
+      showToast('Recipe saved successfully!', 'success');
+    } catch (error: any) {
+      if (error.message?.toLowerCase().includes('already saved')) {
+        setIsSaved(true);
+      }
+      showToast(error.message || 'Failed to save', 'error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const speakText = (text: string) => {
@@ -102,11 +141,21 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                 <Copy className="h-5 w-5" />
               </button>
               <button
-                onClick={exportToPDF}
-                className="p-2 sm:p-2 text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-full transition-all duration-200 touch-manipulation"
-                title="Print / Export PDF"
+                onClick={handleSaveRecipe}
+                disabled={isSaving || isSaved}
+                className={`p-2 sm:p-2 rounded-full transition-all duration-200 touch-manipulation ${isSaved
+                    ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 cursor-not-allowed'
+                    : 'text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                  }`}
+                title={isSaved ? "Saved" : "Save Recipe"}
               >
-                <Printer className="h-5 w-5" />
+                {isSaving ? (
+                  <div className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full" />
+                ) : isSaved ? (
+                  <BookmarkCheck className="h-5 w-5" />
+                ) : (
+                  <Bookmark className="h-5 w-5" />
+                )}
               </button>
               <button
                 onClick={() => onToggleFavorite(recipe.id)}

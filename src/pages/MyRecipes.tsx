@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getMyRecipes, deleteRecipe } from '../services/recipeService';
-import { ChefHat, Trash2, Clock, Utensils } from 'lucide-react';
+import { ChefHat, Trash2, Clock, Utensils, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../contexts/ToastContext';
@@ -90,7 +90,16 @@ export const MyRecipes: React.FC = () => {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0 pb-12">
-            <div className="flex items-center gap-3 mb-8">
+            <div className="mb-2">
+                <button
+                    onClick={() => navigate('/app')}
+                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 active:text-emerald-700 dark:active:text-emerald-300 transition-colors duration-200 touch-manipulation p-2 -ml-2 rounded-lg w-fit"
+                >
+                    <ArrowLeft className="h-5 w-5 sm:h-5 sm:w-5" />
+                    <span className="text-sm sm:text-base font-medium">Back to Dashboard</span>
+                </button>
+            </div>
+            <div className="flex items-center gap-3 mb-8 mt-2">
                 <ChefHat className="h-8 w-8 text-emerald-500" />
                 <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
                     My Saved Recipes
