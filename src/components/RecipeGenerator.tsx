@@ -8,12 +8,16 @@ import { DishLookup } from './DishLookup';
 import { RecipeCard } from './RecipeCard';
 import { RecipeDetail } from './RecipeDetail';
 import { Skeleton } from './ui/Skeleton';
+import { useLocation } from 'react-router-dom';
 
 export const RecipeGenerator: React.FC = () => {
+  const location = useLocation();
+  const stateRecipe = location.state?.recipe;
+
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(stateRecipe || null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'dish'>('ingredients');
@@ -24,9 +28,11 @@ export const RecipeGenerator: React.FC = () => {
       setFavorites(JSON.parse(savedFavorites));
     }
 
-    // Show random recipes on initial load
-    setRecipes(getRandomRecipes(6));
-  }, []);
+    // Show random recipes on initial load if no state recipe
+    if (!stateRecipe) {
+      setRecipes(getRandomRecipes(6));
+    }
+  }, [stateRecipe]);
 
   useEffect(() => {
     localStorage.setItem('recipe-favorites', JSON.stringify(favorites));
