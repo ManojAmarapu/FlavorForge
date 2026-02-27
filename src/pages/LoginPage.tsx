@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User as UserIcon, ChefHat } from 'lucide-react';
+import { Mail, Lock, User as UserIcon } from 'lucide-react';
 import { loginUser, registerUser, loginWithGoogle } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { FloatingElements } from './IntroPage';
 
+const FloatingElements = ({ opacity = 0.04 }: { opacity?: number }) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ opacity }}>
+        <motion.div className="absolute top-16 left-12 text-5xl" animate={{ y: [0, -35, 0] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}>🍅</motion.div>
+        <motion.div className="absolute bottom-24 right-20 text-6xl" animate={{ y: [0, 30, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}>🥕</motion.div>
+        <motion.div className="absolute top-1/3 left-1/4 text-5xl" animate={{ y: [0, -25, 0] }} transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}>🧅</motion.div>
+        <motion.div className="absolute bottom-1/3 left-16 text-4xl" animate={{ y: [0, 20, 0] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}>🧄</motion.div>
+        <motion.div className="absolute top-1/4 right-12 text-6xl rotate-12" animate={{ y: [0, -28, 0] }} transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}>🔪</motion.div>
+        <motion.div className="absolute bottom-10 right-1/3 text-6xl" animate={{ y: [0, 22, 0] }} transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}>🍳</motion.div>
+        <motion.div className="absolute top-10 right-1/4 text-5xl" animate={{ y: [0, -20, 0] }} transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}>🥬</motion.div>
+    </div>
+);
 export const LoginPage = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
@@ -54,10 +64,10 @@ export const LoginPage = () => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.6 }}
             className="min-h-screen flex items-center justify-center relative overflow-hidden"
         >
             {/* Animated Gradient Background */}
@@ -77,18 +87,26 @@ export const LoginPage = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="w-full max-w-md p-8 sm:p-10 relative z-10 bg-white/40 dark:bg-gray-900/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 shadow-[inset_0_0_40px_rgba(255,255,255,0.3)] dark:shadow-[inset_0_0_40px_rgba(0,0,0,0.3)]"
+                className="w-full max-w-md p-8 sm:p-10 relative z-10 bg-white/40 dark:bg-gray-900/50 backdrop-blur-xl rounded-3xl"
+                style={{
+                    boxShadow: "0 15px 50px rgba(0, 0, 0, 0.08), 0 0 60px rgba(16, 185, 129, 0.2)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)"
+                }}
             >
                 <div className="text-center mb-8">
                     <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                        className="inline-flex items-center justify-center mb-4 bg-white p-2 rounded-full shadow-lg shadow-[0_0_25px_rgba(16,185,129,0.35)]"
+                        className="inline-flex items-center justify-center mb-4 bg-white p-3 rounded-full shadow-lg shadow-emerald-400/20"
                     >
-                        <ChefHat className="w-8 h-8 text-black" />
+                        <img
+                            src="/apple-touch-icon.png"
+                            alt="FlavorForge Logo"
+                            className="w-14 h-14 object-contain"
+                        />
                     </motion.div>
-                    <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
+                    <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 brand-title">
                         FlavorForge
                     </h2>
                     <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 font-bold">

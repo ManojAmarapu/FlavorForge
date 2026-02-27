@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -15,12 +15,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 const HeaderAuth = () => {
   const { user, logout, isLoading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     setIsLoggingOut(true);
     setTimeout(() => {
+      localStorage.removeItem("auth_token");
       logout();
-      window.location.href = '/login';
+      navigate('/login', { replace: true });
     }, 300); // Wait for fade out animation
   };
 
@@ -109,32 +111,8 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route
-          path="/"
-          element={
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <IntroPage />
-            </motion.div>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <LoginPage />
-            </motion.div>
-          }
-        />
+        <Route path="/" element={<IntroPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="/app"
           element={

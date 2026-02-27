@@ -98,21 +98,24 @@ export const RecipeGenerator: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="bg-white p-2 rounded-full shadow-lg shadow-[0_0_25px_rgba(16,185,129,0.35)]">
-            <ChefHat className="h-7 w-7 sm:h-8 sm:w-8 text-black" />
+      <div className="flex justify-center mb-8">
+        <div className="flex items-center gap-4">
+          <div className="bg-white rounded-full p-3 shadow-lg shadow-emerald-400/20">
+            <img
+              src="/apple-touch-icon.png"
+              alt="FlavorForge Logo"
+              className="w-12 h-12 object-contain drop-shadow-lg"
+            />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
-            FlavorForge
-          </h1>
+          <div className="text-left">
+            <h1 className="text-3xl font-bold brand-title text-gray-900 dark:text-gray-100">
+              FlavorForge
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400">
+              Your AI Culinary Companion
+            </p>
+          </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 text-lg sm:text-xl font-medium max-w-2xl mx-auto px-4 sm:px-0">
-          Your AI Culinary Companion
-        </p>
-        <p className="text-gray-500 dark:text-gray-500 text-sm sm:text-base max-w-2xl mx-auto px-4 sm:px-0 mt-2">
-          Create custom recipes from your ingredients or search for specific dishes with detailed instructions
-        </p>
       </div>
 
       {/* Tab Navigation */}
