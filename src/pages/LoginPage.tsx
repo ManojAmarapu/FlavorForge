@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, ChefHat } from 'lucide-react';
 import { loginUser, registerUser, loginWithGoogle } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { FloatingElements } from './IntroPage';
 
 export const LoginPage = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -52,65 +53,66 @@ export const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-100 to-blue-50 dark:from-gray-900 dark:via-emerald-950 dark:to-gray-900">
-            {/* Animated background bubbles */}
+        <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.4 }}
+            className="min-h-screen flex items-center justify-center relative overflow-hidden"
+        >
+            {/* Animated Gradient Background */}
             <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-teal-100 to-sky-200 dark:from-gray-900 dark:via-emerald-950 dark:to-gray-900"
                 animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.3, 0.5, 0.3],
+                    backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"]
                 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-300 dark:bg-emerald-800 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px]"
-            />
-            <motion.div
-                animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.3, 0.6, 0.3],
-                }}
-                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-300 dark:bg-teal-800 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px]"
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                style={{ backgroundSize: "400% 400%" }}
             />
 
+            {/* Floating Cooking Elements */}
+            <FloatingElements opacity={0.04} />
+
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="w-full max-w-md p-8 sm:p-10 relative z-10 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50"
+                className="w-full max-w-md p-8 sm:p-10 relative z-10 bg-white/40 dark:bg-gray-900/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 dark:border-gray-700/50 shadow-[inset_0_0_40px_rgba(255,255,255,0.3)] dark:shadow-[inset_0_0_40px_rgba(0,0,0,0.3)]"
             >
                 <div className="text-center mb-8">
                     <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                        className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-500 rounded-2xl shadow-lg mb-4 text-white"
+                        className="inline-flex items-center justify-center mb-4 bg-white p-2 rounded-full shadow-lg shadow-[0_0_25px_rgba(16,185,129,0.35)]"
                     >
-                        <LogIn className="w-8 h-8" />
+                        <ChefHat className="w-8 h-8 text-black" />
                     </motion.div>
                     <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
                         FlavorForge
                     </h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 font-medium">
-                        Your personal AI culinary assistant
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 font-bold">
+                        Your AI Culinary Companion
                     </p>
                 </div>
 
-                {/* Tabs */}
-                <div className="flex relative bg-gray-200/50 dark:bg-gray-800/50 rounded-xl p-1 mb-8 backdrop-blur-sm">
+                {/* Sliding Pill Tabs */}
+                <div className="flex relative bg-white/30 dark:bg-gray-800/40 rounded-full p-1 mb-8 backdrop-blur-md shadow-inner">
                     <button
                         onClick={() => setIsLogin(true)}
-                        className={`flex-1 py-2.5 text-sm font-semibold rounded-lg z-10 transition-colors ${isLogin ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        className={`flex-1 py-2.5 text-sm font-bold rounded-full z-10 transition-colors duration-300 ${isLogin ? 'text-emerald-800 dark:text-emerald-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
                     >
                         Login
                     </button>
                     <button
                         onClick={() => setIsLogin(false)}
-                        className={`flex-1 py-2.5 text-sm font-semibold rounded-lg z-10 transition-colors ${!isLogin ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        className={`flex-1 py-2.5 text-sm font-bold rounded-full z-10 transition-colors duration-300 ${!isLogin ? 'text-emerald-800 dark:text-emerald-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
                     >
                         Register
                     </button>
                     <motion.div
                         layout
-                        className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-gray-700 rounded-lg shadow-sm"
+                        className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white dark:bg-gray-700 rounded-full shadow-md border border-white/40 dark:border-gray-600/50"
                         animate={{ x: isLogin ? 0 : "100%" }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
@@ -130,45 +132,48 @@ export const LoginPage = () => {
                         >
                             {!isLogin && (
                                 <div className="relative">
-                                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <input
+                                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                    <motion.input
+                                        whileFocus={{ scale: 1.02, boxShadow: '0 0 15px rgba(16,185,129,0.3)' }}
                                         type="text"
                                         required
                                         placeholder="Full Name"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-gray-400"
+                                        className="w-full bg-white/60 dark:bg-gray-800/60 border border-white/40 dark:border-gray-600/50 text-gray-900 dark:text-gray-100 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all placeholder:text-gray-500"
                                     />
                                 </div>
                             )}
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                <input
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <motion.input
+                                    whileFocus={{ scale: 1.02, boxShadow: '0 0 15px rgba(16,185,129,0.3)' }}
                                     type="email"
                                     required
                                     placeholder="Email Address"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-gray-400"
+                                    className="w-full bg-white/60 dark:bg-gray-800/60 border border-white/40 dark:border-gray-600/50 text-gray-900 dark:text-gray-100 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all placeholder:text-gray-500"
                                 />
                             </div>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                <input
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                <motion.input
+                                    whileFocus={{ scale: 1.02, boxShadow: '0 0 15px rgba(16,185,129,0.3)' }}
                                     type="password"
                                     required
                                     placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-gray-400"
+                                    className="w-full bg-white/60 dark:bg-gray-800/60 border border-white/40 dark:border-gray-600/50 text-gray-900 dark:text-gray-100 rounded-xl px-10 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all placeholder:text-gray-500"
                                 />
                             </div>
 
                             <motion.button
-                                whileHover={{ scale: 1.02 }}
+                                whileHover={{ scale: 1.02, y: -2, boxShadow: '0 10px 25px rgba(16,185,129,0.4)' }}
                                 whileTap={{ scale: 0.98 }}
                                 disabled={isSubmitting}
-                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 mt-6"
+                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-6 border border-emerald-400/30"
                             >
                                 {isSubmitting ? (
                                     <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
@@ -182,19 +187,19 @@ export const LoginPage = () => {
 
                 <div className="mt-8 relative flex items-center justify-center">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                        <div className="w-full border-t border-gray-400/30 dark:border-gray-600/50"></div>
                     </div>
-                    <div className="relative px-4 text-xs font-semibold text-gray-400 uppercase tracking-widest bg-transparent">
-                        <span className="bg-white/70 dark:bg-gray-900 px-2 rounded-full">OR</span>
+                    <div className="relative px-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest bg-transparent">
+                        <span className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-200/50 dark:border-gray-700/50">OR</span>
                     </div>
                 </div>
 
                 <div className="mt-8">
                     <motion.button
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={loginWithGoogle}
-                        className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                        className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border-none text-gray-800 dark:text-gray-200 font-bold py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-md border border-gray-100 dark:border-gray-700 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
                             <path
@@ -218,6 +223,6 @@ export const LoginPage = () => {
                     </motion.button>
                 </div>
             </motion.div>
-        </div>
+        </motion.div>
     );
 };

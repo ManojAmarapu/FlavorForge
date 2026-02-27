@@ -100,12 +100,17 @@ export const RecipeGenerator: React.FC = () => {
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <ChefHat className="h-7 w-7 sm:h-8 sm:w-8 text-emerald-500" />
+          <div className="bg-white p-2 rounded-full shadow-lg shadow-[0_0_25px_rgba(16,185,129,0.35)]">
+            <ChefHat className="h-7 w-7 sm:h-8 sm:w-8 text-black" />
+          </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
-            Recipe Generator
+            FlavorForge
           </h1>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg max-w-2xl mx-auto px-4 sm:px-0">
+        <p className="text-gray-600 dark:text-gray-400 text-lg sm:text-xl font-medium max-w-2xl mx-auto px-4 sm:px-0">
+          Your AI Culinary Companion
+        </p>
+        <p className="text-gray-500 dark:text-gray-500 text-sm sm:text-base max-w-2xl mx-auto px-4 sm:px-0 mt-2">
           Create custom recipes from your ingredients or search for specific dishes with detailed instructions
         </p>
       </div>
