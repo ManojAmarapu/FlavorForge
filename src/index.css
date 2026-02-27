@@ -2,11 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+#root {
+  height: 100%;
+  background: #10b981;
+}
+
 body {
   font-family: 'Inter', sans-serif;
 }
 
-h1, h2, h3, .brand-title {
+h1,
+h2,
+h3,
+.brand-title {
   font-family: 'Poppins', sans-serif;
   letter-spacing: -0.5px;
 }

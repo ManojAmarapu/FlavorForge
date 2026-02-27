@@ -11,6 +11,7 @@ import { AppDashboard } from './pages/AppDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LogIn, LogOut, BookHeart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CulinaryBackground } from './components/CulinaryBackground';
 
 const HeaderAuth = () => {
   const { user, logout, isLoading } = useAuth();
@@ -81,7 +82,7 @@ const HeaderAuth = () => {
 };
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+  <div className="min-h-screen transition-colors duration-300">
     <div className="container mx-auto px-4 py-6 sm:py-8">
       <div className="fixed top-4 right-4 z-50 flex items-center gap-2 sm:gap-3">
         <HeaderAuth />
@@ -109,46 +110,51 @@ const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<IntroPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/app"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <AppDashboard />
-                </motion.div>
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-recipes"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <MyRecipes />
-                </motion.div>
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </AnimatePresence>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400">
+      <CulinaryBackground />
+      <div className="relative z-10">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<IntroPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/app"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <AppDashboard />
+                    </motion.div>
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-recipes"
+              element={
+                <ProtectedRoute>
+                  <MainLayout>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <MyRecipes />
+                    </motion.div>
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };
 
