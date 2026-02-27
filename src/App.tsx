@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { FavoritesProvider } from './contexts/FavoritesContext';
 import { ThemeToggle } from './components/ThemeToggle';
 import { MyRecipes } from './pages/MyRecipes';
 import { IntroPage } from './pages/IntroPage';
@@ -111,7 +112,7 @@ const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 dark:from-teal-950 dark:via-emerald-900 dark:to-teal-900 transition-colors duration-500">
       <CulinaryBackground />
       <div className="relative z-10">
         <AnimatePresence mode="wait">
@@ -181,10 +182,12 @@ function App() {
     <Router>
       <AuthProvider>
         <ToastProvider>
-          <ThemeProvider>
-            <GlobalControls />
-            <AnimatedRoutes />
-          </ThemeProvider>
+          <FavoritesProvider>
+            <ThemeProvider>
+              <GlobalControls />
+              <AnimatedRoutes />
+            </ThemeProvider>
+          </FavoritesProvider>
         </ToastProvider>
       </AuthProvider>
     </Router>

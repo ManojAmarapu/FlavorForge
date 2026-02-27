@@ -5,14 +5,15 @@ import {
   Play, Pause, SkipForward, Volume2, ChefHat, CheckCircle2, Circle,
   Timer as TimerIcon, X, List
 } from 'lucide-react';
-// import { Recipe } from '../types/recipe'; -> Not directly used for props anymore
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { saveRecipe, getMyRecipes } from '../services/recipeService';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 export const RecipeDetail: React.FC = () => {
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export const RecipeDetail: React.FC = () => {
   const from = location.state?.from || 'dashboard';
 
   const [recipe, setRecipe] = useState<any>(stateRecipe || null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const favorite = recipe ? checkIsFavorite(recipe.id || recipe._id) : false;
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,9 +47,7 @@ export const RecipeDetail: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    // Check favorites
-    const favs = JSON.parse(localStorage.getItem('recipe-favorites') || '[]');
-    setIsFavorite(favs.includes(id as string));
+    // Favorites now managed by global context
 
     if (!recipe && id) {
       // Handle backend fallback securely if state is lost and it's a saved recipe
@@ -71,19 +70,7 @@ export const RecipeDetail: React.FC = () => {
     if (user && recipe) checkSavedStatus();
   }, [id, recipe, token, user]);
 
-  const onToggleFavorite = () => {
-    if (!recipe) return;
-    const favs = JSON.parse(localStorage.getItem('recipe-favorites') || '[]');
-    if (favs.includes(recipe.id || recipe._id)) {
-      const newFavs = favs.filter((fid: string) => fid !== (recipe.id || recipe._id));
-      localStorage.setItem('recipe-favorites', JSON.stringify(newFavs));
-      setIsFavorite(false);
-    } else {
-      favs.push(recipe.id || recipe._id);
-      localStorage.setItem('recipe-favorites', JSON.stringify(favs));
-      setIsFavorite(true);
-    }
-  };
+
 
   const onBack = () => {
     if (from === 'saved') navigate('/my-recipes');
@@ -341,10 +328,10 @@ export const RecipeDetail: React.FC = () => {
                   {isSaving ? <div className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full" /> : isSaved ? <BookmarkCheck className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
                 </button>
                 <button
-                  onClick={onToggleFavorite}
-                  className={`p-2 rounded-full transition-all ${isFavorite ? 'text-red-500 hover:bg-red-50' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+                  onClick={() => toggleFavorite(recipe)}
+                  className={`p-2 rounded-full transition-all ${favorite ? 'text-red-500 hover:bg-red-50' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
                 >
-                  <Heart className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} />
+                  <Heart className={`h-6 w-6 ${favorite ? 'fill-current' : ''}`} />
                 </button>
               </div>
             </div>

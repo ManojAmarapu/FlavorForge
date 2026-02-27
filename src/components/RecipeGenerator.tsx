@@ -8,24 +8,19 @@ import { DishLookup } from './DishLookup';
 import { RecipeCard } from './RecipeCard';
 import { Skeleton } from './ui/Skeleton';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 export const RecipeGenerator: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [activeTab, setActiveTab] = useState<'ingredients' | 'dish'>('ingredients');
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ingredients' | 'dish'>('ingredients');
 
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('recipe-favorites');
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
+  const { favorites } = useFavorites();
 
   useEffect(() => {
     // Generate fresh recipes on mount, tab change, or navigation return (location.key change)
@@ -40,10 +35,6 @@ export const RecipeGenerator: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.key, activeTab]);
-
-  useEffect(() => {
-    localStorage.setItem('recipe-favorites', JSON.stringify(favorites));
-  }, [favorites]);
 
   const handleIngredientsChange = (newIngredients: string[]) => {
     setIngredients(newIngredients);
@@ -79,19 +70,11 @@ export const RecipeGenerator: React.FC = () => {
     setShowFavorites(false);
   };
 
-  const handleToggleFavorite = (recipeId: string) => {
-    setFavorites(prev =>
-      prev.includes(recipeId)
-        ? prev.filter(id => id !== recipeId)
-        : [...prev, recipeId]
-    );
-  };
-
   const handleSelectRecipe = (recipe: Recipe) => {
     navigate(`/recipe/${recipe.id}`, { state: { recipe, from: 'dashboard' } });
   };
 
-  const favoriteRecipes = recipes.filter(recipe => favorites.includes(recipe.id));
+  const favoriteRecipes = favorites;
   const displayRecipes = showFavorites ? favoriteRecipes : recipes;
 
   return (
@@ -249,8 +232,6 @@ export const RecipeGenerator: React.FC = () => {
                 <RecipeCard
                   key={recipe.id}
                   recipe={recipe}
-                  isFavorite={favorites.includes(recipe.id)}
-                  onToggleFavorite={handleToggleFavorite}
                   onSelectRecipe={handleSelectRecipe}
                 />
               ))

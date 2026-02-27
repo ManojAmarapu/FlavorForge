@@ -5,20 +5,19 @@ import { Recipe } from '../types/recipe';
 import { useAuth } from '../contexts/AuthContext';
 import { saveRecipe } from '../services/recipeService';
 import { useToast } from '../contexts/ToastContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 interface RecipeCardProps {
   recipe: Recipe;
-  isFavorite: boolean;
-  onToggleFavorite: (recipeId: string) => void;
   onSelectRecipe: (recipe: Recipe) => void;
 }
 
 export const RecipeCard: React.FC<RecipeCardProps> = memo(({
   recipe,
-  isFavorite,
-  onToggleFavorite,
   onSelectRecipe
 }) => {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(recipe.id);
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
@@ -64,29 +63,29 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
     <motion.div
       whileHover={{ scale: 1.02 }}
       exit={{ opacity: 0, y: 20, transition: { duration: 0.2 } }}
-      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700"
+      className="bg-white/80 dark:bg-white/10 backdrop-blur-sm dark:backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-white/10"
     >
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 leading-tight">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white/90 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 leading-tight">
             {recipe.title}
           </h3>
           <button
-            onClick={() => onToggleFavorite(recipe.id)}
-            className={`p-2 sm:p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${isFavorite
+            onClick={() => toggleFavorite(recipe)}
+            className={`p-2 sm:p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${favorite
               ? 'text-red-500 hover:text-red-600'
               : 'text-gray-400 hover:text-red-500'
               }`}
           >
-            <Heart className={`h-5 w-5 sm:h-5 sm:w-5 ${isFavorite ? 'fill-current' : ''}`} />
+            <Heart className={`h-5 w-5 sm:h-5 sm:w-5 ${favorite ? 'fill-current' : ''}`} />
           </button>
         </div>
 
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-white/70 mb-4 line-clamp-2">
           {recipe.description}
         </p>
 
-        <div className="flex items-center gap-3 sm:gap-4 mb-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 flex-wrap">
+        <div className="flex items-center gap-3 sm:gap-4 mb-4 text-xs sm:text-sm text-gray-500 dark:text-white/70 flex-wrap">
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
             {recipe.cookingTime}
@@ -147,7 +146,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
               <button
                 onClick={handleSaveRecipe}
                 disabled={isSaving || isSaved}
-                className="p-3 rounded-lg bg-white/80 hover:bg-white transition shadow-sm border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 flex items-center justify-center touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-3 rounded-lg bg-white/80 hover:bg-white transition shadow-sm border border-gray-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                 title={isSaved ? "Saved" : "Save Recipe"}
               >
                 {isSaving ? (

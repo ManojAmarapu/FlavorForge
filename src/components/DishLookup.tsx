@@ -25,14 +25,14 @@ export const DishLookup: React.FC<DishLookupProps> = ({ onRecipeFound }) => {
     await new Promise(resolve => setTimeout(resolve, 800));
 
     const recipe = lookupDish(dishName);
-    
+
     if (recipe) {
       onRecipeFound(recipe);
       setDishName('');
     } else {
       setError('Recipe not found. Try searching for popular dishes like "spaghetti bolognese", "chicken curry", or "caesar salad".');
     }
-    
+
     setIsSearching(false);
   };
 
@@ -50,14 +50,14 @@ export const DishLookup: React.FC<DishLookupProps> = ({ onRecipeFound }) => {
   };
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+    <div className="bg-white/80 dark:bg-white/15 backdrop-blur-sm dark:backdrop-blur-lg rounded-xl p-4 sm:p-6 shadow-lg dark:shadow-xl border border-gray-200 dark:border-white/10">
       <div className="flex items-center gap-3 mb-4">
         <BookOpen className="h-6 w-6 text-blue-500" />
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white/90">
           Search Recipe by Dish Name
         </h2>
       </div>
-      
+
       <div className="space-y-4">
         <div className="relative">
           <input
