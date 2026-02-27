@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getMyRecipes, deleteRecipe } from '../services/recipeService';
 import { ChefHat, Trash2, Clock, Utensils, ArrowLeft, Search, SlidersHorizontal } from 'lucide-react';
@@ -14,7 +14,8 @@ export const MyRecipes: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [recipeToDelete, setRecipeToDelete] = useState<any | null>(null);
-    const [recentlyDeleted, setRecentlyDeleted] = useState<any | null>(null);
+    const [, setRecentlyDeleted] = useState<any | null>(null);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [sortBy, setSortBy] = useState('recent');
@@ -243,8 +244,7 @@ export const MyRecipes: React.FC = () => {
                                 <div className="p-5 flex-grow">
                                     <div className="flex justify-between items-start mb-3">
                                         <h3
-                                            onClick={() => navigate(`/recipe/${recipe._id || recipe.id}`, { state: { recipe, from: 'saved' } })}
-                                            className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer transition-colors"
+                                            className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight"
                                         >
                                             {recipe.title}
                                         </h3>
@@ -287,6 +287,15 @@ export const MyRecipes: React.FC = () => {
                                                     <li className="text-emerald-500 font-medium">+{recipe.ingredients.length - 3} more...</li>
                                                 )}
                                             </ul>
+                                        </div>
+
+                                        <div className="pt-4 mt-auto">
+                                            <button
+                                                onClick={() => navigate(`/recipe/${recipe._id || recipe.id}`, { state: { recipe, from: 'saved' } })}
+                                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg touch-manipulation"
+                                            >
+                                                View Recipe
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

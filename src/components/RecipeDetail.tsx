@@ -73,7 +73,8 @@ export const RecipeDetail: React.FC = () => {
 
 
   const onBack = () => {
-    if (from === 'saved') navigate('/my-recipes');
+    if (from === 'favorites') navigate('/app', { state: { scrollToFavorites: true } });
+    else if (from === 'saved') navigate('/my-recipes');
     else navigate('/app');
   };
 

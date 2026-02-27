@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChefHat, Sparkles, Heart, Utensils } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 import { generateRecipes, getRandomRecipes } from '../utils/recipeGenerator';
@@ -21,6 +21,17 @@ export const RecipeGenerator: React.FC = () => {
   const [showFavorites, setShowFavorites] = useState(false);
 
   const { favorites } = useFavorites();
+  const favoritesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (location.state?.scrollToFavorites) {
+      setShowFavorites(true);
+      setTimeout(() => {
+        favoritesRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     // Generate fresh recipes on mount, tab change, or navigation return (location.key change)
@@ -71,7 +82,9 @@ export const RecipeGenerator: React.FC = () => {
   };
 
   const handleSelectRecipe = (recipe: Recipe) => {
-    navigate(`/recipe/${recipe.id}`, { state: { recipe, from: 'dashboard' } });
+    navigate(`/recipe/${recipe.id}`, {
+      state: { recipe, from: showFavorites ? 'favorites' : 'dashboard' }
+    });
   };
 
   const favoriteRecipes = favorites;
@@ -199,7 +212,7 @@ export const RecipeGenerator: React.FC = () => {
       )}
 
       {displayRecipes.length > 0 && (
-        <div className="space-y-6">
+        <div ref={favoritesRef} className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100">
               {showFavorites ? 'Your Favorite Recipes' : 'Recipe Suggestions'}
