@@ -9,6 +9,8 @@ export interface ToastProps {
     message: string;
     type: ToastType;
     duration?: number;
+    actionLabel?: string;
+    onAction?: () => void;
     onClose: (id: string) => void;
 }
 
@@ -16,7 +18,9 @@ export const Toast: React.FC<ToastProps> = ({
     id,
     message,
     type,
-    duration = 3000,
+    duration = 5000,
+    actionLabel,
+    onAction,
     onClose,
 }) => {
     useEffect(() => {
@@ -54,14 +58,25 @@ export const Toast: React.FC<ToastProps> = ({
             initial={{ opacity: 0, y: 50, scale: 0.3 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${backgrounds[type]}`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${backgrounds[type]} pointer-events-auto`}
             layout
         >
             {icons[type]}
-            <p className={`text-sm font-medium ${textColors[type]}`}>{message}</p>
+            <p className={`text-sm font-medium ${textColors[type]} flex-1 mr-2`}>{message}</p>
+            {actionLabel && onAction && (
+                <button
+                    onClick={() => {
+                        onAction();
+                        onClose(id);
+                    }}
+                    className={`text-sm font-bold uppercase tracking-wider hover:opacity-75 transition-opacity px-2 border-l border-current opacity-90 ${textColors[type]}`}
+                >
+                    {actionLabel}
+                </button>
+            )}
             <button
                 onClick={() => onClose(id)}
-                className={`ml-2 p-1 rounded-md opacity-70 hover:opacity-100 transition-opacity ${textColors[type]}`}
+                className={`ml-1 p-1 rounded-md opacity-70 hover:opacity-100 transition-opacity ${textColors[type]}`}
             >
                 <X className="w-4 h-4" />
             </button>

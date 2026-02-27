@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getMyRecipes, deleteRecipe } from '../services/recipeService';
 import { ChefHat, Trash2, Clock, Utensils, ArrowLeft } from 'lucide-react';
@@ -11,6 +11,9 @@ export const MyRecipes: React.FC = () => {
     const [recipes, setRecipes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [recipeToDelete, setRecipeToDelete] = useState<any | null>(null);
+    const [recentlyDeleted, setRecentlyDeleted] = useState<any | null>(null);
+    const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,17 +42,40 @@ export const MyRecipes: React.FC = () => {
 
     const { showToast } = useToast();
 
-    const handleDelete = async (id: string) => {
-        if (!token) return;
-        if (!window.confirm('Are you sure you want to delete this recipe?')) return;
+    const handleUndo = () => {
+        setRecentlyDeleted((prevDeleted: any) => {
+            if (!prevDeleted) return null;
 
-        try {
-            await deleteRecipe(id, token);
-            setRecipes((prev) => prev.filter((r) => r._id !== id));
-            showToast('Recipe deleted successfully', 'success');
-        } catch (err: any) {
-            showToast(err.message || 'Failed to delete recipe', 'error');
+            if (deleteTimeoutRef.current) {
+                clearTimeout(deleteTimeoutRef.current);
+            }
+
+            setRecipes((prev) => [prevDeleted, ...prev]);
+
+            return null;
+        });
+    };
+
+    const confirmDelete = (recipe: any) => {
+        setRecipes((prev) => prev.filter((r) => r._id !== recipe._id));
+        setRecentlyDeleted(recipe);
+        setRecipeToDelete(null);
+
+        showToast('Recipe deleted', 'warning', 'Undo', handleUndo);
+
+        if (deleteTimeoutRef.current) {
+            clearTimeout(deleteTimeoutRef.current);
         }
+
+        deleteTimeoutRef.current = setTimeout(async () => {
+            if (!token) return;
+            try {
+                await deleteRecipe(recipe._id, token);
+                setRecentlyDeleted(null);
+            } catch (error) {
+                console.error("Permanent delete failed:", error);
+            }
+        }, 5000);
     };
 
     if (authLoading || loading) {
@@ -132,7 +158,7 @@ export const MyRecipes: React.FC = () => {
                                         {recipe.title}
                                     </h3>
                                     <button
-                                        onClick={() => handleDelete(recipe._id)}
+                                        onClick={() => setRecipeToDelete(recipe)}
                                         className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0"
                                         title="Delete Recipe"
                                     >
@@ -179,6 +205,39 @@ export const MyRecipes: React.FC = () => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {recipeToDelete && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[380px] shadow-2xl border border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
+                            Delete Recipe?
+                        </h3>
+
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                            Are you sure you want to delete
+                            <span className="font-medium text-gray-900 dark:text-gray-200">
+                                {" "}{recipeToDelete.title}
+                            </span>?
+                        </p>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setRecipeToDelete(null)}
+                                className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={() => confirmDelete(recipeToDelete)}
+                                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition shadow-md"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

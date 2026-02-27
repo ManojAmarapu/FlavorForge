@@ -6,10 +6,12 @@ interface ToastMessage {
     id: string;
     message: string;
     type: ToastType;
+    actionLabel?: string;
+    onAction?: () => void;
 }
 
 interface ToastContextType {
-    showToast: (message: string, type: ToastType) => void;
+    showToast: (message: string, type: ToastType, actionLabel?: string, onAction?: () => void) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -17,9 +19,9 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-    const showToast = useCallback((message: string, type: ToastType) => {
+    const showToast = useCallback((message: string, type: ToastType, actionLabel?: string, onAction?: () => void) => {
         const id = Math.random().toString(36).substr(2, 9);
-        setToasts((prev) => [...prev, { id, message, type }]);
+        setToasts((prev) => [...prev, { id, message, type, actionLabel, onAction }]);
     }, []);
 
     const removeToast = useCallback((id: string) => {
@@ -38,6 +40,8 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                                 id={toast.id}
                                 message={toast.message}
                                 type={toast.type}
+                                actionLabel={toast.actionLabel}
+                                onAction={toast.onAction}
                                 onClose={removeToast}
                             />
                         ))}
