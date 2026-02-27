@@ -15,7 +15,7 @@ export default function CulinaryBackground() {
 
             {/* Top-mid */}
             <motion.div
-                className="absolute top-[8%] left-[45%] text-6xl opacity-30"
+                className="absolute top-[8%] left-[45%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -33,7 +33,7 @@ export default function CulinaryBackground() {
 
             {/* Behind 'Discover recipes' text (Carrot) */}
             <motion.div
-                className="absolute top-[60%] left-[30%] text-6xl opacity-30"
+                className="absolute top-[60%] left-[30%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -60,7 +60,7 @@ export default function CulinaryBackground() {
 
             {/* Lower Mid-right */}
             <motion.div
-                className="absolute bottom-[45%] right-[8%] text-6xl opacity-30"
+                className="absolute bottom-[45%] right-[8%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 21, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -69,16 +69,16 @@ export default function CulinaryBackground() {
 
             {/* Bottom-left */}
             <motion.div
-                className="absolute bottom-[10%] left-[25%] text-7xl opacity-[0.35]"
+                className="absolute bottom-[10%] left-[25%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
             >
                 🧅
             </motion.div>
 
-            {/* Below 'Start Cooking' button, slight right (Mushroom) */}
+            {/* Below 'Start Cooking' button, slight right (Mushroom) safely lowered */}
             <motion.div
-                className="absolute bottom-[14%] left-[54%] text-6xl opacity-28"
+                className="absolute bottom-[5%] left-[54%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -96,7 +96,7 @@ export default function CulinaryBackground() {
 
             {/* Scattered Extra 1 */}
             <motion.div
-                className="absolute top-[30%] left-[20%] text-6xl opacity-30"
+                className="absolute top-[30%] left-[20%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 17, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -105,7 +105,7 @@ export default function CulinaryBackground() {
 
             {/* Scattered Extra 2 */}
             <motion.div
-                className="absolute bottom-[25%] right-[35%] text-6xl opacity-30"
+                className="absolute bottom-[25%] right-[35%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -114,7 +114,7 @@ export default function CulinaryBackground() {
 
             {/* Above last 'e' in FlavorForge (Chili) */}
             <motion.div
-                className="absolute top-[32%] left-[56%] text-6xl opacity-30"
+                className="absolute top-[32%] left-[56%] text-7xl opacity-40"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
                 transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
             >
