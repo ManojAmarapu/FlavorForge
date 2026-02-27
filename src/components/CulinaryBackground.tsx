@@ -78,9 +78,9 @@ export default function CulinaryBackground() {
 
             {/* Below 'Start Cooking' button, slight right (Mushroom) */}
             <motion.div
-                className="absolute bottom-[8%] left-[60%] text-6xl opacity-28"
+                className="absolute bottom-[14%] left-[54%] text-6xl opacity-28"
                 animate={{ y: [0, -35, 0], x: [0, 10, 0] }}
-                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: 19, repeat: Infinity, ease: "easeInOut" }}
             >
                 🍄
             </motion.div>
