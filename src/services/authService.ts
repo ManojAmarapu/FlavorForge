@@ -18,3 +18,36 @@ export const getCurrentUser = async (token: string) => {
 
     return response.json();
 };
+
+export const registerUser = async (data: {
+    name: string;
+    email: string;
+    password: string;
+}) => {
+    const res = await fetch(
+        "https://flavorforge-tgch.onrender.com/auth/register",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        }
+    );
+
+    return res.json();
+};
+
+export const loginUser = async (data: {
+    email: string;
+    password: string;
+}) => {
+    const res = await fetch(
+        "https://flavorforge-tgch.onrender.com/auth/login",
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        }
+    );
+
+    return res.json();
+};
