@@ -2,7 +2,7 @@ export interface Recipe {
   id: string;
   title: string;
   description: string;
-  cookingTime: string;
+  cookingTime: number;
   servings: number;
   difficulty: 'Easy' | 'Medium' | 'Hard';
   ingredients: string[];
