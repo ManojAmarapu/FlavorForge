@@ -58,12 +58,19 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
       showToast('Please log in to save recipes', 'error');
       return;
     }
+
+    if (!recipe || !recipe.id) {
+      showToast('Invalid recipe data', 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
       await saveRecipe(recipe, token);
       setIsSaved(true);
       showToast('Recipe saved successfully!', 'success');
     } catch (error: any) {
+      console.error("Save Error:", error);
       if (error.message?.toLowerCase().includes('already saved')) {
         setIsSaved(true);
       }
@@ -144,8 +151,8 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                 onClick={handleSaveRecipe}
                 disabled={isSaving || isSaved}
                 className={`p-2 sm:p-2 rounded-full transition-all duration-200 touch-manipulation ${isSaved
-                    ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 cursor-not-allowed'
-                    : 'text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                  ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 cursor-not-allowed'
+                  : 'text-gray-500 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
                   }`}
                 title={isSaved ? "Saved" : "Save Recipe"}
               >
