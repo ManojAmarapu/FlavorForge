@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Users, Heart, Save } from 'lucide-react';
+import { Clock, Users, Heart, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 import { useAuth } from '../contexts/AuthContext';
 import { saveRecipe } from '../services/recipeService';
@@ -30,15 +30,29 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
   const { user, token } = useAuth();
   const { showToast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleSaveRecipe = async () => {
-    if (!token) return;
+    if (!token || !user) {
+      showToast('Please log in to save recipes', 'error');
+      return;
+    }
+
+    if (!recipe || !recipe.id) {
+      showToast('Invalid recipe data', 'error');
+      return;
+    }
 
     setIsSaving(true);
     try {
       await saveRecipe(recipe, token);
+      setIsSaved(true);
       showToast('Recipe saved!', 'success');
     } catch (error: any) {
+      console.error("Save Error:", error.response?.data || error);
+      if (error.message?.toLowerCase().includes('already saved')) {
+        setIsSaved(true);
+      }
       showToast(error.message || 'Failed to save', 'error');
     } finally {
       setIsSaving(false);
@@ -127,14 +141,16 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
             {user && (
               <button
                 onClick={handleSaveRecipe}
-                disabled={isSaving}
-                className="flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-transform duration-200 transform hover:scale-[1.05] active:scale-[0.95] block shadow-sm border border-gray-200 dark:border-gray-600"
-                title="Save to My Recipes"
+                disabled={isSaving || isSaved}
+                className="p-3 rounded-lg bg-white/80 hover:bg-white transition shadow-sm border border-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 flex items-center justify-center touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isSaved ? "Saved" : "Save Recipe"}
               >
                 {isSaving ? (
-                  <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-transparent rounded-full" />
+                  <div className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full" />
+                ) : isSaved ? (
+                  <BookmarkCheck className="text-emerald-500" size={20} />
                 ) : (
-                  <Save className="h-5 w-5 hover:text-emerald-500 transition-colors" />
+                  <Bookmark className="text-gray-600 dark:text-gray-400 hover:text-emerald-500 transition-colors" size={20} />
                 )}
               </button>
             )}
