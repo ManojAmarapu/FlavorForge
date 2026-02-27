@@ -6,14 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ModalPortal } from '../components/ui/ModalPortal';
+import { useModal } from '../contexts/ModalContext';
 
 export const MyRecipes: React.FC = () => {
     const { user, token, isLoading: authLoading } = useAuth();
     const [recipes, setRecipes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [recipeToDelete, setRecipeToDelete] = useState<any | null>(null);
+    const { showModal } = useModal();
     const [, setRecentlyDeleted] = useState<any | null>(null);
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -106,7 +106,6 @@ export const MyRecipes: React.FC = () => {
     const confirmDelete = (recipe: any) => {
         setRecipes((prev) => prev.filter((r) => r._id !== recipe._id));
         setRecentlyDeleted(recipe);
-        setRecipeToDelete(null);
 
         showToast('Recipe deleted', 'warning', 'Undo', handleUndo);
 
@@ -126,6 +125,23 @@ export const MyRecipes: React.FC = () => {
                 setRecentlyDeleted(null);
             }
         }, 5000);
+    };
+
+    const handleDeleteClick = (recipe: any) => {
+        showModal({
+            title: "Delete Recipe?",
+            message: (
+                <span>
+                    Are you sure you want to delete
+                    <span className="font-medium text-gray-900 dark:text-gray-200">
+                        {" "}{recipe.title}
+                    </span>?
+                </span>
+            ),
+            type: "error",
+            confirmText: "Delete",
+            onConfirm: () => confirmDelete(recipe)
+        });
     };
 
     if (authLoading || loading) {
@@ -249,7 +265,7 @@ export const MyRecipes: React.FC = () => {
                                             {recipe.title}
                                         </h3>
                                         <button
-                                            onClick={() => setRecipeToDelete(recipe)}
+                                            onClick={() => handleDeleteClick(recipe)}
                                             className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0 touch-manipulation"
                                             title="Delete Recipe"
                                         >
@@ -309,52 +325,7 @@ export const MyRecipes: React.FC = () => {
                 </motion.div >
             )}
 
-            <ModalPortal>
-                <AnimatePresence>
-                    {recipeToDelete && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0, transition: { duration: 0.18, ease: "easeOut" } }}
-                            className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-md flex items-center justify-center"
-                        >
-                            <motion.div
-                                initial={{ scale: 0.95, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.95, opacity: 0, transition: { duration: 0.18, ease: "easeOut" } }}
-                                className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-[380px] shadow-2xl border border-gray-200 dark:border-gray-700 m-4 relative z-[10000]"
-                            >
-                                <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
-                                    Delete Recipe?
-                                </h3>
 
-                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-                                    Are you sure you want to delete
-                                    <span className="font-medium text-gray-900 dark:text-gray-200">
-                                        {" "}{recipeToDelete.title}
-                                    </span>?
-                                </p>
-
-                                <div className="flex justify-end gap-3">
-                                    <button
-                                        onClick={() => setRecipeToDelete(null)}
-                                        className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition"
-                                    >
-                                        Cancel
-                                    </button>
-
-                                    <button
-                                        onClick={() => confirmDelete(recipeToDelete)}
-                                        className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition shadow-md"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </ModalPortal>
         </div >
     );
 };

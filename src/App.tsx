@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
+import { ModalProvider } from './contexts/ModalContext';
 import { ThemeToggle } from './components/ThemeToggle';
 import { MyRecipes } from './pages/MyRecipes';
 import { IntroPage } from './pages/IntroPage';
@@ -14,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { LogIn, LogOut, BookHeart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CulinaryBackground from './components/CulinaryBackground';
+import { PremiumModal } from './components/ui/PremiumModal';
 
 const HeaderAuth = () => {
   const { user, logout, isLoading } = useAuth();
@@ -183,10 +185,13 @@ function App() {
       <AuthProvider>
         <ToastProvider>
           <FavoritesProvider>
-            <ThemeProvider>
-              <GlobalControls />
-              <AnimatedRoutes />
-            </ThemeProvider>
+            <ModalProvider>
+              <ThemeProvider>
+                <GlobalControls />
+                <AnimatedRoutes />
+                <PremiumModal />
+              </ThemeProvider>
+            </ModalProvider>
           </FavoritesProvider>
         </ToastProvider>
       </AuthProvider>

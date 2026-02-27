@@ -9,6 +9,7 @@ import { RecipeCard } from './RecipeCard';
 import { Skeleton } from './ui/Skeleton';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { useModal } from '../contexts/ModalContext';
 
 export const RecipeGenerator: React.FC = () => {
   const location = useLocation();
@@ -21,6 +22,7 @@ export const RecipeGenerator: React.FC = () => {
   const [showFavorites, setShowFavorites] = useState(false);
 
   const { favorites } = useFavorites();
+  const { showModal } = useModal();
   const favoritesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,7 +55,13 @@ export const RecipeGenerator: React.FC = () => {
 
   const handleGenerateRecipes = async () => {
     if (ingredients.length === 0) {
-      alert('Please enter some ingredients first!');
+      showModal({
+        title: "Missing Ingredients",
+        message: "Please enter at least one ingredient before generating a recipe.",
+        type: "warning",
+        confirmText: "Got it",
+        showCancel: false
+      });
       return;
     }
 
