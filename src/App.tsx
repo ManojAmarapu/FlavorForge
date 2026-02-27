@@ -11,7 +11,7 @@ import { AppDashboard } from './pages/AppDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { LogIn, LogOut, BookHeart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CulinaryBackground } from './components/CulinaryBackground';
+import CulinaryBackground from './components/CulinaryBackground';
 
 const HeaderAuth = () => {
   const { user, logout, isLoading } = useAuth();
