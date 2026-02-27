@@ -24,5 +24,7 @@ const recipeSchema = new mongoose.Schema({
     }
 }, { strict: false });
 
+recipeSchema.index({ userId: 1, recipeId: 1 }, { unique: true });
+
 const Recipe = mongoose.model('Recipe', recipeSchema);
 module.exports = Recipe;

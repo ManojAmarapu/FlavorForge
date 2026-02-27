@@ -24,11 +24,12 @@ export const saveRecipe = async (recipe: Recipe, userId: string, token: string) 
     return response.json();
 };
 
-export const getMyRecipes = async (token: string) => {
+export const getMyRecipes = async (token: string, signal?: AbortSignal) => {
     const response = await fetch(`${API_URL}/recipes`, {
         headers: {
             Authorization: `Bearer ${token}`,
         },
+        signal
     });
 
     if (!response.ok) {

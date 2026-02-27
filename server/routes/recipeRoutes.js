@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
         });
 
         if (existing) {
-            return res.status(400).json({ message: "Already saved" });
+            return res.status(409).json({ message: "Recipe already saved" });
         }
 
         const newRecipe = new Recipe({
@@ -34,6 +34,9 @@ router.post('/', async (req, res) => {
         res.status(201).json({ message: "Recipe saved successfully" });
 
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(409).json({ message: "Recipe already saved" });
+        }
         console.error("SAVE ROUTE ERROR:", error);
         res.status(500).json({ message: error.message });
     }

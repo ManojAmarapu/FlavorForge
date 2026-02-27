@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
+import { motion } from 'framer-motion';
 import { Clock, Users, Heart, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,7 +13,7 @@ interface RecipeCardProps {
   onSelectRecipe: (recipe: Recipe) => void;
 }
 
-export const RecipeCard: React.FC<RecipeCardProps> = ({
+export const RecipeCard: React.FC<RecipeCardProps> = memo(({
   recipe,
   isFavorite,
   onToggleFavorite,
@@ -60,7 +61,11 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
   };
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700">
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      exit={{ opacity: 0, y: 20, transition: { duration: 0.2 } }}
+      className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700"
+    >
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200 leading-tight">
@@ -157,6 +162,8 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
-};
+});
+
+RecipeCard.displayName = 'RecipeCard';

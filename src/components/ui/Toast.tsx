@@ -55,9 +55,9 @@ export const Toast: React.FC<ToastProps> = ({
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.3 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.25 } }}
+            exit={{ opacity: 0, x: 100, transition: { duration: 0.25 } }}
             className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${backgrounds[type]} pointer-events-auto`}
             layout
         >
