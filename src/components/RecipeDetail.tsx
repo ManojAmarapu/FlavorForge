@@ -11,7 +11,7 @@ import { saveRecipe, getMyRecipes } from '../services/recipeService';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useFavorites } from '../contexts/FavoritesContext';
-import { getRecipeId } from '../utils/normalizeRecipeId';
+import { getCanonicalId } from '../utils/normalizeRecipeId';
 
 export const RecipeDetail: React.FC = () => {
   const { favorites, toggleFavorite } = useFavorites();
@@ -23,7 +23,7 @@ export const RecipeDetail: React.FC = () => {
   const from = location.state?.from || 'dashboard';
 
   const [recipe, setRecipe] = useState<any>(stateRecipe || null);
-  const favorite = recipe ? favorites.some(r => getRecipeId(r) === getRecipeId(recipe)) : false;
+  const favorite = recipe ? favorites.some(r => getCanonicalId(r) === getCanonicalId(recipe)) : false;
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

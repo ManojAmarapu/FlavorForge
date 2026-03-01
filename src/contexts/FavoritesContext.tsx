@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Recipe } from '../types/recipe';
-import { getRecipeId } from '../utils/normalizeRecipeId';
+import { getCanonicalId } from '../utils/normalizeRecipeId';
 import { useToast } from './ToastContext';
+import { useModal } from './ModalContext';
 
 interface FavoritesContextType {
     favorites: Recipe[];
@@ -11,57 +12,72 @@ interface FavoritesContextType {
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [favorites, setFavorites] = useState<Recipe[]>([]);
+    const [favoritesMap, setFavoritesMap] = useState<Map<string, Recipe>>(new Map());
     const { showToast } = useToast();
+    const { showModal } = useModal();
     const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const favorites = Array.from(favoritesMap.values());
 
     useEffect(() => {
         const stored = localStorage.getItem("flavorforge_favorites");
         if (stored) {
             const parsed = JSON.parse(stored);
-            const uniqueFavorites = Array.from(
-                new Map(parsed.map((f: any) => [getRecipeId(f).toString(), f])).values()
-            ) as Recipe[];
-            setFavorites(uniqueFavorites);
+            const map = new Map<string, Recipe>();
+            parsed.forEach((f: any) => {
+                const id = getCanonicalId(f);
+                if (id) map.set(id, f);
+            });
+            setFavoritesMap(map);
         }
     }, []);
 
     useEffect(() => {
-        const uniqueFavorites = Array.from(
-            new Map(favorites.map((f: any) => [getRecipeId(f).toString(), f])).values()
-        ) as Recipe[];
-        localStorage.setItem("flavorforge_favorites", JSON.stringify(uniqueFavorites));
-    }, [favorites]);
+        localStorage.setItem("flavorforge_favorites", JSON.stringify(Array.from(favoritesMap.values())));
+    }, [favoritesMap]);
 
     const toggleFavorite = (recipe: Recipe | any) => {
-        const isFav = favorites.some(f => getRecipeId(f).toString() === getRecipeId(recipe).toString());
+        const id = getCanonicalId(recipe);
+        if (!id) return;
 
-        if (isFav) {
-            setFavorites(prev => prev.filter(r => getRecipeId(r).toString() !== getRecipeId(recipe).toString()));
+        if (favoritesMap.has(id)) {
+            showModal({
+                title: "Remove from Favorites?",
+                message: "Are you sure you want to remove this recipe from favorites?",
+                type: "warning",
+                confirmText: "Remove",
+                cancelText: "Cancel",
+                showCancel: true,
+                onConfirm: () => {
+                    setFavoritesMap(prev => {
+                        const newMap = new Map(prev);
+                        newMap.delete(id);
+                        return newMap;
+                    });
 
-            if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
 
-            showToast('Removed from Favorites', 'info', 'Undo', () => {
-                if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-                setFavorites(prev => {
-                    const uniqueFavorites = Array.from(
-                        new Map([...prev, recipe].map((r: any) => [getRecipeId(r).toString(), r])).values()
-                    ) as Recipe[];
-                    return uniqueFavorites;
-                });
+                    showToast('Removed from Favorites', 'info', 'Undo', () => {
+                        if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                        setFavoritesMap(prev => {
+                            const newMap = new Map(prev);
+                            newMap.set(id, recipe);
+                            return newMap;
+                        });
+                    });
+
+                    undoTimeoutRef.current = setTimeout(() => {
+                        // Time expires, removal finalized
+                    }, 5000);
+                }
             });
-
-            undoTimeoutRef.current = setTimeout(() => {
-                // Time expires, removal finalized
-            }, 5000);
             return;
         }
 
-        setFavorites(prev => {
-            const uniqueFavorites = Array.from(
-                new Map([...prev, recipe].map((r: any) => [getRecipeId(r).toString(), r])).values()
-            ) as Recipe[];
-            return uniqueFavorites;
+        setFavoritesMap(prev => {
+            const newMap = new Map(prev);
+            newMap.set(id, recipe);
+            return newMap;
         });
     };
 

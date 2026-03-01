@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../contexts/ToastContext';
 import { useFavorites } from '../contexts/FavoritesContext';
-import { getRecipeId } from '../utils/normalizeRecipeId';
+import { getCanonicalId } from '../utils/normalizeRecipeId';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useModal } from '../contexts/ModalContext';
 
@@ -252,7 +252,7 @@ export const MyRecipes: React.FC = () => {
                     <AnimatePresence>
                         {filteredAndSortedRecipes.map((recipe) => {
                             const isFavorited = favorites.some(
-                                f => getRecipeId(f).toString() === getRecipeId(recipe).toString()
+                                f => getCanonicalId(f) === getCanonicalId(recipe)
                             );
                             return (
                                 <motion.div

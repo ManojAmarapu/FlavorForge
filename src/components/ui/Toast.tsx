@@ -69,7 +69,7 @@ export const Toast: React.FC<ToastProps> = ({
                         onAction();
                         onClose(id);
                     }}
-                    className={`text-sm font-bold uppercase tracking-wider hover:opacity-75 transition-opacity px-2 border-l border-current opacity-90 ${textColors[type]}`}
+                    className={`text-xs font-bold uppercase tracking-wider hover:bg-black/5 dark:hover:bg-white/10 transition-colors px-3 py-1.5 rounded-lg border border-current opacity-90 ${textColors[type]}`}
                 >
                     {actionLabel}
                 </button>

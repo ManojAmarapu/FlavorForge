@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { saveRecipe } from '../services/recipeService';
 import { useToast } from '../contexts/ToastContext';
 import { useFavorites } from '../contexts/FavoritesContext';
-import { getRecipeId } from '../utils/normalizeRecipeId';
+import { getCanonicalId } from '../utils/normalizeRecipeId';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -18,7 +18,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
   onSelectRecipe
 }) => {
   const { favorites, toggleFavorite } = useFavorites();
-  const favorite = favorites.some((r) => getRecipeId(r) === getRecipeId(recipe));
+  const favorite = favorites.some((r) => getCanonicalId(r) === getCanonicalId(recipe));
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30';

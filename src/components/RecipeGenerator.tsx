@@ -10,7 +10,7 @@ import { Skeleton } from './ui/Skeleton';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useModal } from '../contexts/ModalContext';
-import { getRecipeId } from '../utils/normalizeRecipeId';
+import { getCanonicalId } from '../utils/normalizeRecipeId';
 
 export const RecipeGenerator: React.FC = () => {
   const location = useLocation();
@@ -97,7 +97,7 @@ export const RecipeGenerator: React.FC = () => {
   };
 
   const favoriteRecipes = Array.from(
-    new Map(favorites.map((r) => [getRecipeId(r), r])).values()
+    new Map(favorites.map((r) => [getCanonicalId(r), r])).values()
   );
   const displayRecipes = showFavorites ? favoriteRecipes : recipes;
 
