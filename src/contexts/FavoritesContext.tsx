@@ -14,6 +14,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [favorites, setFavorites] = useState<Recipe[]>([]);
     const { showModal } = useModal();
     const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [pendingRemoval, setPendingRemoval] = useState<Recipe | null>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem("flavorforge_favorites");
@@ -28,25 +29,29 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     const confirmRemove = (recipe: Recipe | any) => {
         setFavorites(prev => prev.filter(r => getRecipeId(r) !== getRecipeId(recipe)));
-
-        showModal({
-            title: "Removed from Favorites",
-            message: "Recipe removed. You can undo this action.",
-            type: "info",
-            confirmText: "Undo",
-            showCancel: false,
-            onConfirm: () => {
-                if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-                setFavorites(prev => [...prev, recipe]);
-            }
-        });
+        setPendingRemoval(recipe);
 
         if (undoTimeoutRef.current) {
             clearTimeout(undoTimeoutRef.current);
         }
 
+        setTimeout(() => {
+            showModal({
+                title: "Removed from Favorites",
+                message: "Recipe removed. You can undo this action.",
+                type: "info",
+                confirmText: "Undo",
+                showCancel: false,
+                onConfirm: () => {
+                    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                    setFavorites(prev => [...prev, recipe]);
+                    setPendingRemoval(null);
+                }
+            });
+        }, 0);
+
         undoTimeoutRef.current = setTimeout(() => {
-            // Finalize removal
+            setPendingRemoval(null);
         }, 5000);
     };
 
