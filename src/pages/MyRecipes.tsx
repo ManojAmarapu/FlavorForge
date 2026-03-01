@@ -250,92 +250,97 @@ export const MyRecipes: React.FC = () => {
             ) : (
                 <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <AnimatePresence>
-                        {filteredAndSortedRecipes.map((recipe) => (
-                            <motion.div
-                                key={recipe._id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.2 } }}
-                                whileHover={{ scale: 1.02 }}
-                                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-md hover:shadow-xl active:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700"
-                            >
-                                <div className="p-5 flex-grow">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <h3
-                                            className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight"
-                                        >
-                                            {recipe.title}
-                                        </h3>
-                                        <div className="flex gap-1 shrink-0">
-                                            <button
-                                                onClick={() => toggleFavorite(recipe)}
-                                                className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${favorites.some(f => getRecipeId(f) === getRecipeId(recipe))
-                                                    ? 'text-red-500 hover:text-red-600'
-                                                    : 'text-gray-400 hover:text-red-500'
-                                                    }`}
-                                                title={favorites.some(f => getRecipeId(f) === getRecipeId(recipe)) ? "Remove from Favorites" : "Add to Favorites"}
+                        {filteredAndSortedRecipes.map((recipe) => {
+                            const isFavorited = favorites.some(
+                                f => getRecipeId(f).toString() === getRecipeId(recipe).toString()
+                            );
+                            return (
+                                <motion.div
+                                    key={recipe._id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.2 } }}
+                                    whileHover={{ scale: 1.02 }}
+                                    className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-md hover:shadow-xl active:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col border border-gray-200 dark:border-gray-700"
+                                >
+                                    <div className="p-5 flex-grow">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <h3
+                                                className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight"
                                             >
-                                                <Heart className={`h-5 w-5 ${favorites.some(f => getRecipeId(f) === getRecipeId(recipe)) ? 'fill-current' : ''}`} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteClick(recipe)}
-                                                className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-manipulation"
-                                                title="Delete Recipe"
-                                            >
-                                                <Trash2 className="h-5 w-5" />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                        {recipe.cookingTime && (
-                                            <div className="flex items-center gap-1">
-                                                <Clock className="h-4 w-4" />
-                                                {recipe.cookingTime} min
+                                                {recipe.title}
+                                            </h3>
+                                            <div className="flex gap-1 shrink-0">
+                                                <button
+                                                    onClick={() => toggleFavorite(recipe)}
+                                                    className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${isFavorited
+                                                        ? 'text-red-500 hover:text-red-600'
+                                                        : 'text-gray-400 hover:text-red-500'
+                                                        }`}
+                                                    title={isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+                                                >
+                                                    <Heart className={`h-5 w-5 ${isFavorited ? 'fill-current' : ''}`} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteClick(recipe)}
+                                                    className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-manipulation"
+                                                    title="Delete Recipe"
+                                                >
+                                                    <Trash2 className="h-5 w-5" />
+                                                </button>
                                             </div>
-                                        )}
-                                        {recipe.difficulty && (
-                                            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-medium">
-                                                {recipe.difficulty}
-                                            </span>
-                                        )}
-                                    </div>
+                                        </div>
 
-                                    <div className="space-y-4">
-                                        <div>
-                                            <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2 text-xs sm:text-sm">
-                                                <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
-                                                    {recipe.ingredients.length}
+                                        <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                            {recipe.cookingTime && (
+                                                <div className="flex items-center gap-1">
+                                                    <Clock className="h-4 w-4" />
+                                                    {recipe.cookingTime} min
+                                                </div>
+                                            )}
+                                            {recipe.difficulty && (
+                                                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-medium">
+                                                    {recipe.difficulty}
                                                 </span>
-                                                Ingredients
-                                            </h4>
-                                            <ul className="list-disc pl-5 text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                                {recipe.ingredients.slice(0, 3).map((ing: string, i: number) => (
-                                                    <li key={i} className="line-clamp-1">{ing}</li>
-                                                ))}
-                                                {recipe.ingredients.length > 3 && (
-                                                    <li className="text-emerald-500 font-medium">+{recipe.ingredients.length - 3} more...</li>
-                                                )}
-                                            </ul>
+                                            )}
                                         </div>
 
-                                        <div className="pt-4 mt-auto">
-                                            <button
-                                                onClick={() => navigate(`/recipe/${recipe._id || recipe.id}`, { state: { recipe, from: 'saved' } })}
-                                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg touch-manipulation"
-                                            >
-                                                View Recipe
-                                            </button>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2 text-xs sm:text-sm">
+                                                    <span className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs">
+                                                        {recipe.ingredients.length}
+                                                    </span>
+                                                    Ingredients
+                                                </h4>
+                                                <ul className="list-disc pl-5 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                                    {recipe.ingredients.slice(0, 3).map((ing: string, i: number) => (
+                                                        <li key={i} className="line-clamp-1">{ing}</li>
+                                                    ))}
+                                                    {recipe.ingredients.length > 3 && (
+                                                        <li className="text-emerald-500 font-medium">+{recipe.ingredients.length - 3} more...</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+
+                                            <div className="pt-4 mt-auto">
+                                                <button
+                                                    onClick={() => navigate(`/recipe/${recipe._id || recipe.id}`, { state: { recipe, from: 'saved' } })}
+                                                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg touch-manipulation"
+                                                >
+                                                    View Recipe
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 text-xs text-gray-500 dark:text-gray-400 text-center">
-                                    Added {new Date(recipe.createdAt).toLocaleDateString()}
-                                </div>
-                            </motion.div>
-                        ))}
+                                    <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 text-xs text-gray-500 dark:text-gray-400 text-center">
+                                        Added {new Date(recipe.createdAt).toLocaleDateString()}
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
                     </AnimatePresence>
                 </motion.div >
             )}

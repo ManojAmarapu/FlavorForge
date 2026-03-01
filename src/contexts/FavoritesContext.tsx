@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Recipe } from '../types/recipe';
 import { getRecipeId } from '../utils/normalizeRecipeId';
-import { useModal } from './ModalContext';
+import { useToast } from './ToastContext';
 
 interface FavoritesContextType {
     favorites: Recipe[];
@@ -12,79 +12,57 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [favorites, setFavorites] = useState<Recipe[]>([]);
-    const { showModal } = useModal();
+    const { showToast } = useToast();
     const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const [pendingRemoval, setPendingRemoval] = useState<Recipe | null>(null);
 
     useEffect(() => {
         const stored = localStorage.getItem("flavorforge_favorites");
         if (stored) {
-            setFavorites(JSON.parse(stored));
+            const parsed = JSON.parse(stored);
+            const uniqueFavorites = Array.from(
+                new Map(parsed.map((f: any) => [getRecipeId(f).toString(), f])).values()
+            ) as Recipe[];
+            setFavorites(uniqueFavorites);
         }
     }, []);
 
     useEffect(() => {
-        localStorage.setItem("flavorforge_favorites", JSON.stringify(favorites));
+        const uniqueFavorites = Array.from(
+            new Map(favorites.map((f: any) => [getRecipeId(f).toString(), f])).values()
+        ) as Recipe[];
+        localStorage.setItem("flavorforge_favorites", JSON.stringify(uniqueFavorites));
     }, [favorites]);
 
-    const confirmRemove = (recipe: Recipe | any) => {
-        setFavorites(prev => prev.filter(r => getRecipeId(r) !== getRecipeId(recipe)));
-        setPendingRemoval(recipe);
-
-        if (undoTimeoutRef.current) {
-            clearTimeout(undoTimeoutRef.current);
-        }
-
-        setTimeout(() => {
-            showModal({
-                title: "Removed from Favorites",
-                message: "Recipe removed. You can undo this action.",
-                type: "info",
-                confirmText: "Undo",
-                showCancel: false,
-                onConfirm: () => {
-                    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-                    setFavorites(prev => [...prev, recipe]);
-                    setPendingRemoval(null);
-                }
-            });
-        }, 0);
-
-        undoTimeoutRef.current = setTimeout(() => {
-            setPendingRemoval(null);
-        }, 5000);
-    };
-
     const toggleFavorite = (recipe: Recipe | any) => {
-        const exists = favorites.some(f => getRecipeId(f) === getRecipeId(recipe));
+        const isFav = favorites.some(f => getRecipeId(f).toString() === getRecipeId(recipe).toString());
 
-        if (exists) {
-            showModal({
-                title: "Remove from Favorites?",
-                message: "Are you sure you want to remove this recipe from your favorites?",
-                type: "warning",
-                confirmText: "Remove",
-                cancelText: "Keep",
-                showCancel: true,
-                onConfirm: () => confirmRemove(recipe)
+        if (isFav) {
+            setFavorites(prev => prev.filter(r => getRecipeId(r).toString() !== getRecipeId(recipe).toString()));
+
+            if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+
+            showToast('Removed from Favorites', 'info', 'Undo', () => {
+                if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                setFavorites(prev => {
+                    const uniqueFavorites = Array.from(
+                        new Map([...prev, recipe].map((r: any) => [getRecipeId(r).toString(), r])).values()
+                    ) as Recipe[];
+                    return uniqueFavorites;
+                });
             });
+
+            undoTimeoutRef.current = setTimeout(() => {
+                // Time expires, removal finalized
+            }, 5000);
             return;
         }
 
-        // Technically already checked by `exists`. Including strictly to match requirements cleanly if race condition occurs
-        const duplicate = favorites.some(f => getRecipeId(f) === getRecipeId(recipe));
-        if (duplicate) {
-            showModal({
-                title: "Already in Favorites",
-                message: "This recipe is already added to your favorites.",
-                type: "info",
-                confirmText: "OK",
-                showCancel: false
-            });
-            return;
-        }
-
-        setFavorites(prev => [...prev, recipe]);
+        setFavorites(prev => {
+            const uniqueFavorites = Array.from(
+                new Map([...prev, recipe].map((r: any) => [getRecipeId(r).toString(), r])).values()
+            ) as Recipe[];
+            return uniqueFavorites;
+        });
     };
 
     return (
