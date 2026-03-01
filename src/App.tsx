@@ -184,15 +184,15 @@ function App() {
     <Router>
       <AuthProvider>
         <ToastProvider>
-          <FavoritesProvider>
-            <ModalProvider>
+          <ModalProvider>
+            <FavoritesProvider>
               <ThemeProvider>
                 <GlobalControls />
                 <AnimatedRoutes />
                 <PremiumModal />
               </ThemeProvider>
-            </ModalProvider>
-          </FavoritesProvider>
+            </FavoritesProvider>
+          </ModalProvider>
         </ToastProvider>
       </AuthProvider>
     </Router>

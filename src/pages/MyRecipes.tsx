@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getMyRecipes, deleteRecipe } from '../services/recipeService';
-import { ChefHat, Trash2, Clock, Utensils, ArrowLeft, Search, SlidersHorizontal } from 'lucide-react';
+import { ChefHat, Trash2, Clock, Utensils, ArrowLeft, Search, SlidersHorizontal, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useToast } from '../contexts/ToastContext';
+import { useFavorites } from '../contexts/FavoritesContext';
+import { getRecipeId } from '../utils/normalizeRecipeId';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useModal } from '../contexts/ModalContext';
 
@@ -14,6 +16,7 @@ export const MyRecipes: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { showModal } = useModal();
+    const { favorites, toggleFavorite } = useFavorites();
     const [, setRecentlyDeleted] = useState<any | null>(null);
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -264,13 +267,25 @@ export const MyRecipes: React.FC = () => {
                                         >
                                             {recipe.title}
                                         </h3>
-                                        <button
-                                            onClick={() => handleDeleteClick(recipe)}
-                                            className="p-2 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0 touch-manipulation"
-                                            title="Delete Recipe"
-                                        >
-                                            <Trash2 className="h-5 w-5" />
-                                        </button>
+                                        <div className="flex gap-1 shrink-0">
+                                            <button
+                                                onClick={() => toggleFavorite(recipe)}
+                                                className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${favorites.some(f => getRecipeId(f) === getRecipeId(recipe))
+                                                    ? 'text-red-500 hover:text-red-600'
+                                                    : 'text-gray-400 hover:text-red-500'
+                                                    }`}
+                                                title={favorites.some(f => getRecipeId(f) === getRecipeId(recipe)) ? "Remove from Favorites" : "Add to Favorites"}
+                                            >
+                                                <Heart className={`h-5 w-5 ${favorites.some(f => getRecipeId(f) === getRecipeId(recipe)) ? 'fill-current' : ''}`} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteClick(recipe)}
+                                                className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-manipulation"
+                                                title="Delete Recipe"
+                                            >
+                                                <Trash2 className="h-5 w-5" />
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4">
