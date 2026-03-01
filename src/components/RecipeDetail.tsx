@@ -23,7 +23,7 @@ export const RecipeDetail: React.FC = () => {
   const from = location.state?.from || 'dashboard';
 
   const [recipe, setRecipe] = useState<any>(stateRecipe || null);
-  const favorite = recipe ? favorites.some(r => getCanonicalId(r) === getCanonicalId(recipe)) : false;
+  const favorite = recipe ? favorites.has(getCanonicalId(recipe)) : false;
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

@@ -251,9 +251,7 @@ export const MyRecipes: React.FC = () => {
                 <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <AnimatePresence>
                         {filteredAndSortedRecipes.map((recipe) => {
-                            const isFavorited = favorites.some(
-                                f => getCanonicalId(f) === getCanonicalId(recipe)
-                            );
+                            const isFavorited = favorites.has(getCanonicalId(recipe));
                             return (
                                 <motion.div
                                     key={recipe._id}

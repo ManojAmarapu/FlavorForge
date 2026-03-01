@@ -96,10 +96,9 @@ export const RecipeGenerator: React.FC = () => {
     });
   };
 
-  const favoriteRecipes = Array.from(
-    new Map(favorites.map((r) => [getCanonicalId(r), r])).values()
-  );
-  const displayRecipes = showFavorites ? favoriteRecipes : recipes;
+  const favoriteRecipes = Array.from(favorites.values());
+  const safeFavorites = favoriteRecipes.filter(r => r && getCanonicalId(r));
+  const displayRecipes = showFavorites ? safeFavorites : recipes;
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0">
@@ -210,10 +209,10 @@ export const RecipeGenerator: React.FC = () => {
             >
               <Heart className={`h-4 w-4 ${showFavorites ? 'fill-current' : ''}`} />
               <span className="hidden sm:inline">
-                {showFavorites ? 'Show All Recipes' : `Favorites (${favorites.length})`}
+                {showFavorites ? 'Show All Recipes' : `Favorites (${favorites.size})`}
               </span>
               <span className="sm:hidden">
-                {showFavorites ? 'All' : `♥ ${favorites.length}`}
+                {showFavorites ? 'All' : `♥ ${favorites.size}`}
               </span>
             </button>
           </div>

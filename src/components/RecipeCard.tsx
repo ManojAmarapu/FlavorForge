@@ -18,7 +18,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
   onSelectRecipe
 }) => {
   const { favorites, toggleFavorite } = useFavorites();
-  const favorite = favorites.some((r) => getCanonicalId(r) === getCanonicalId(recipe));
+  const favorite = recipe ? favorites.has(getCanonicalId(recipe)) : false;
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
