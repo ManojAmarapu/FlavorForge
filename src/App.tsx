@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { FavoritesProvider } from './contexts/FavoritesContext';
+import { SavedRecipesProvider } from './contexts/SavedRecipesContext';
 import { ModalProvider } from './contexts/ModalContext';
 import { ThemeToggle } from './components/ThemeToggle';
 import { MyRecipes } from './pages/MyRecipes';
@@ -87,7 +88,7 @@ const HeaderAuth = () => {
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen transition-colors duration-300">
-    <div className="container mx-auto px-4 py-4 sm:py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
       <div className="absolute top-4 right-4 z-50 flex items-center gap-2 sm:gap-3">
         <HeaderAuth />
         <ThemeToggle />
@@ -99,7 +100,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => (
 
 const GlobalControls = () => {
   const location = useLocation();
-  const isAuthPage = location.pathname.startsWith('/app') || location.pathname.startsWith('/my-recipes');
+  const isAuthPage = location.pathname.startsWith('/app') || location.pathname.startsWith('/my-recipes') || location.pathname.startsWith('/recipe');
 
   if (isAuthPage) return null;
 
@@ -186,11 +187,13 @@ function App() {
         <ToastProvider>
           <ModalProvider>
             <FavoritesProvider>
-              <ThemeProvider>
-                <GlobalControls />
-                <AnimatedRoutes />
-                <PremiumModal />
-              </ThemeProvider>
+              <SavedRecipesProvider>
+                <ThemeProvider>
+                  <GlobalControls />
+                  <AnimatedRoutes />
+                  <PremiumModal />
+                </ThemeProvider>
+              </SavedRecipesProvider>
             </FavoritesProvider>
           </ModalProvider>
         </ToastProvider>

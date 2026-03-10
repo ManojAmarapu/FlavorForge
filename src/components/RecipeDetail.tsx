@@ -7,10 +7,11 @@ import {
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
-import { saveRecipe, getMyRecipes } from '../services/recipeService';
+import { getMyRecipes } from '../services/recipeService';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { useSavedRecipes } from '../contexts/SavedRecipesContext';
 import { getCanonicalId } from '../utils/normalizeRecipeId';
 
 export const RecipeDetail: React.FC = () => {
@@ -26,8 +27,8 @@ export const RecipeDetail: React.FC = () => {
   const favorite = recipe ? favorites.has(getCanonicalId(recipe)) : false;
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const { savedRecipes, toggleSaved, isSaving } = useSavedRecipes();
+  const isSaved = recipe ? savedRecipes.has(getCanonicalId(recipe)) : false;
 
   // Smart Assistant States
   const [cookingMode, setCookingMode] = useState(false);
@@ -60,15 +61,7 @@ export const RecipeDetail: React.FC = () => {
       }
     }
 
-    const checkSavedStatus = async () => {
-      if (!token || !recipe) return;
-      try {
-        const savedRecipes = await getMyRecipes(token);
-        const alreadySaved = savedRecipes.some((r: any) => r.title === recipe.title);
-        setIsSaved(alreadySaved);
-      } catch (err) { }
-    };
-    if (user && recipe) checkSavedStatus();
+    // Saved status now intrinsically managed by global context
   }, [id, recipe, token, user]);
 
 
@@ -160,25 +153,8 @@ export const RecipeDetail: React.FC = () => {
   };
 
   const handleSaveRecipe = async () => {
-    if (!token || !user) {
-      showToast('Please log in to save recipes', 'error');
-      return;
-    }
-    if (!recipe || !recipe.id) {
-      showToast('Invalid recipe data', 'error');
-      return;
-    }
-    setIsSaving(true);
-    try {
-      await saveRecipe(recipe, user.id, token);
-      setIsSaved(true);
-      showToast('Recipe saved successfully!', 'success');
-    } catch (error: any) {
-      if (error.message?.toLowerCase().includes('already saved')) setIsSaved(true);
-      else showToast(error.message || 'Failed to save', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    if (!recipe) return;
+    await toggleSaved(recipe);
   };
 
   const playBeep = () => {
@@ -300,7 +276,7 @@ export const RecipeDetail: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="max-w-4xl mx-auto px-4 sm:px-0 pb-20 pt-16 sm:pt-0"
+        className="max-w-4xl mx-auto pb-20 pt-16 sm:pt-0"
       >
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="p-4 sm:p-6">

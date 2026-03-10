@@ -1,71 +1,34 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getMyRecipes, deleteRecipe } from '../services/recipeService';
 import { ChefHat, Trash2, Clock, Utensils, ArrowLeft, Search, SlidersHorizontal, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../components/ui/Skeleton';
-import { useToast } from '../contexts/ToastContext';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { useSavedRecipes } from '../contexts/SavedRecipesContext';
 import { getCanonicalId } from '../utils/normalizeRecipeId';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useModal } from '../contexts/ModalContext';
 
 export const MyRecipes: React.FC = () => {
     const { user, token, isLoading: authLoading } = useAuth();
-    const [recipes, setRecipes] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const { showModal } = useModal();
+    const navigate = useNavigate();
     const { favorites, toggleFavorite } = useFavorites();
-    const [, setRecentlyDeleted] = useState<any | null>(null);
+    const { savedRecipes, toggleSaved } = useSavedRecipes();
+    const recipes = Array.from(savedRecipes.values());
 
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [sortBy, setSortBy] = useState('recent');
-    const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!authLoading && (!user || !token)) {
+            navigate('/');
+        }
+    }, [user, token, authLoading, navigate]);
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
         return () => clearTimeout(timer);
     }, [searchQuery]);
-
-    useEffect(() => {
-        if (authLoading) return;
-
-        if (!user || !token) {
-            navigate('/');
-            return;
-        }
-
-        const controller = new AbortController();
-
-        const fetchRecipes = async () => {
-            try {
-                setLoading(true);
-                const data = await getMyRecipes(token, controller.signal);
-
-                // Segregate Bookmarked Recipes from Favorite Recipes
-                const savedRecipesOnly = data.filter((item: any) => {
-                    const rec = item.recipe || item;
-                    const isFav = rec?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
-                    return !isFav;
-                });
-
-                setRecipes(savedRecipesOnly);
-            } catch (err: any) {
-                if (err.name !== 'AbortError') {
-                    setError(err.message || 'Failed to load recipes');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRecipes();
-
-        return () => controller.abort();
-    }, [user, token, authLoading, navigate]);
 
     const difficultyMap: Record<string, number> = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
 
@@ -83,8 +46,8 @@ export const MyRecipes: React.FC = () => {
                 break;
             case 'time':
                 result.sort((a, b) => {
-                    const tA = parseInt(a.cookingTime) || 999;
-                    const tB = parseInt(b.cookingTime) || 999;
+                    const tA = typeof a.cookingTime === 'string' ? parseInt(a.cookingTime) : (a.cookingTime || 999);
+                    const tB = typeof b.cookingTime === 'string' ? parseInt(b.cookingTime) : (b.cookingTime || 999);
                     return tA - tB;
                 });
                 break;
@@ -98,64 +61,11 @@ export const MyRecipes: React.FC = () => {
         return result;
     }, [recipes, debouncedSearch, sortBy]);
 
-    const { showToast } = useToast();
-
-    const handleUndo = () => {
-        setRecentlyDeleted((prevDeleted: any) => {
-            if (!prevDeleted) return null;
-
-            if (deleteTimeoutRef.current) {
-                clearTimeout(deleteTimeoutRef.current);
-            }
-
-            setRecipes((prev) => [prevDeleted, ...prev]);
-
-            return null;
-        });
-    };
-
-    const confirmDelete = (recipe: any) => {
-        setRecipes((prev) => prev.filter((r) => r._id !== recipe._id));
-        setRecentlyDeleted(recipe);
-
-        showToast('Recipe deleted', 'warning', 'Undo', handleUndo);
-
-        if (deleteTimeoutRef.current) {
-            clearTimeout(deleteTimeoutRef.current);
-        }
-
-        deleteTimeoutRef.current = setTimeout(async () => {
-            if (!token) return;
-            try {
-                await deleteRecipe(recipe._id, token);
-                setRecentlyDeleted(null);
-            } catch (error) {
-                console.error("Permanent delete failed:", error);
-                setRecipes((prev) => [recipe, ...prev]);
-                showToast('Failed to permanently delete recipe - restored to list', 'error');
-                setRecentlyDeleted(null);
-            }
-        }, 5000);
-    };
-
     const handleDeleteClick = (recipe: any) => {
-        showModal({
-            title: "Delete Recipe?",
-            message: (
-                <span>
-                    Are you sure you want to delete
-                    <span className="font-medium text-gray-900 dark:text-gray-200">
-                        {" "}{recipe.title}
-                    </span>?
-                </span>
-            ),
-            type: "error",
-            confirmText: "Delete",
-            onConfirm: () => confirmDelete(recipe)
-        });
+        toggleSaved(recipe);
     };
 
-    if (authLoading || loading) {
+    if (authLoading) {
         return (
             <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-0 py-12">
                 <div className="flex items-center gap-3 mb-8">
@@ -183,16 +93,8 @@ export const MyRecipes: React.FC = () => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-red-500 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg inline-block">{error}</p>
-            </div>
-        );
-    }
-
     return (
-        <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pt-16 sm:pt-0 px-4 sm:px-0 pb-12">
+        <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pt-16 sm:pt-0 pb-12">
             <div className="mb-2">
                 <button
                     onClick={() => navigate('/app')}
@@ -262,7 +164,7 @@ export const MyRecipes: React.FC = () => {
                             const isFavorited = favorites.has(getCanonicalId(recipe));
                             return (
                                 <motion.div
-                                    key={recipe._id}
+                                    key={(recipe as any)._mongoId || recipe.id}
                                     layout
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -332,7 +234,7 @@ export const MyRecipes: React.FC = () => {
 
                                             <div className="pt-4 mt-auto">
                                                 <button
-                                                    onClick={() => navigate(`/recipe/${recipe._id || recipe.id}`, { state: { recipe, from: 'saved' } })}
+                                                    onClick={() => navigate(`/recipe/${(recipe as any)._mongoId || recipe.id}`, { state: { recipe, from: 'saved' } })}
                                                     className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white font-medium py-3 px-4 text-sm sm:text-base rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg touch-manipulation"
                                                 >
                                                     View Recipe
@@ -342,7 +244,7 @@ export const MyRecipes: React.FC = () => {
                                     </div>
 
                                     <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 text-xs text-gray-500 dark:text-gray-400 text-center">
-                                        Added {new Date(recipe.createdAt).toLocaleDateString()}
+                                        Added {(recipe as any).createdAt ? new Date((recipe as any).createdAt).toLocaleDateString() : 'Recently'}
                                     </div>
                                 </motion.div>
                             );

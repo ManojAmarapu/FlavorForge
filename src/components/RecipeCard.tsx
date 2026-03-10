@@ -1,11 +1,10 @@
-import React, { useState, memo } from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Users, Heart, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Recipe } from '../types/recipe';
 import { useAuth } from '../contexts/AuthContext';
-import { saveRecipe } from '../services/recipeService';
-import { useToast } from '../contexts/ToastContext';
 import { useFavorites } from '../contexts/FavoritesContext';
+import { useSavedRecipes } from '../contexts/SavedRecipesContext';
 import { getCanonicalId } from '../utils/normalizeRecipeId';
 
 interface RecipeCardProps {
@@ -28,36 +27,13 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
     }
   };
 
-  const { user, token } = useAuth();
-  const { showToast } = useToast();
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const { user } = useAuth();
+  const { savedRecipes, toggleSaved, isSaving } = useSavedRecipes();
+  const isSaved = recipe ? savedRecipes.has(getCanonicalId(recipe)) : false;
 
   const handleSaveRecipe = async () => {
-    if (!token || !user) {
-      showToast('Please log in to save recipes', 'error');
-      return;
-    }
-
-    if (!recipe || !recipe.id) {
-      showToast('Invalid recipe data', 'error');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      await saveRecipe(recipe, user.id, token);
-      setIsSaved(true);
-      showToast('Recipe saved!', 'success');
-    } catch (error: any) {
-      console.error("Save Error:", error.response?.data || error);
-      if (error.message?.toLowerCase().includes('already saved')) {
-        setIsSaved(true);
-      }
-      showToast(error.message || 'Failed to save', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    if (!recipe) return;
+    await toggleSaved(recipe);
   };
 
   return (
