@@ -300,7 +300,7 @@ export const RecipeDetail: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="max-w-4xl mx-auto px-4 sm:px-0 pb-20"
+        className="max-w-4xl mx-auto px-4 sm:px-0 pb-20 pt-16 sm:pt-0"
       >
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="p-4 sm:p-6">
@@ -485,7 +485,7 @@ export const RecipeDetail: React.FC = () => {
                           }`}
                       >
                         <div className="flex items-start">
-                          <span className={`${cookingMode ? 'w-10 h-10 min-w-[40px] text-lg' : 'w-8 h-8 min-w-[32px] text-sm'} flex-shrink-0 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold mr-4`}>
+                          <span className={`flex-none aspect-square flex justify-center items-center font-bold text-white bg-emerald-500 rounded-full mr-4 ${cookingMode ? 'w-10 h-10 min-w-[40px] min-h-[40px] text-lg' : 'w-8 h-8 min-w-[32px] min-h-[32px] text-sm'}`}>
                             {index + 1}
                           </span>
                           <div className="flex-1 min-w-0">
@@ -526,6 +526,7 @@ export const RecipeDetail: React.FC = () => {
           </div>
         </div>
       </motion.div>
+
 
       {/* Floating Timer Toast */}
       <AnimatePresence>

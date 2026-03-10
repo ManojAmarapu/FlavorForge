@@ -4,7 +4,7 @@ import { getCanonicalId } from '../utils/normalizeRecipeId';
 import { useToast } from './ToastContext';
 import { useModal } from './ModalContext';
 import { useAuth } from './AuthContext';
-import { getMyRecipes } from '../services/recipeService';
+import { getMyRecipes, saveRecipe, deleteRecipe } from '../services/recipeService';
 
 interface FavoritesContextType {
     favorites: Map<string, Recipe>;
@@ -67,11 +67,13 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     setFavorites(prev => {
                         const newMap = new Map(prev); // Start with existing local storage
                         let added = 0;
-                        data.forEach((recipe: any) => {
-                            if (recipe && recipe.recipe) {
-                                const canonical = getCanonicalId(recipe.recipe);
+                        data.forEach((item: any) => {
+                            const recipe = item.recipe || item;
+                            if (recipe) {
+                                if (item._id) recipe._mongoId = item._id; // Store exact MongoDB _id for deletions
+                                const canonical = getCanonicalId(recipe);
                                 if (canonical && !newMap.has(canonical)) {
-                                    newMap.set(canonical, recipe.recipe);
+                                    newMap.set(canonical, recipe);
                                     added++;
                                 }
                             }
@@ -126,6 +128,12 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
                     undoTimeoutRef.current = setTimeout(() => {
                         // Time expires, removal finalized
+                        const targetRecipe = favorites.get(id) || recipe;
+                        const mongoId = targetRecipe._mongoId || targetRecipe._id;
+                        const token = localStorage.getItem('auth_token');
+                        if (mongoId && token) {
+                            deleteRecipe(mongoId, token).catch(console.error);
+                        }
                     }, 5000);
                 }
             });
@@ -137,6 +145,25 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             newMap.set(id, recipe);
             return newMap;
         });
+
+        // Sync new favorite to backend
+        const token = localStorage.getItem('auth_token');
+        if (user && token) {
+            saveRecipe(recipe, user.id, token)
+                .then(data => {
+                    // Patch the new _id into the map so it can be deleted later without a reload
+                    if (data && data.recipe && data.recipe._id) {
+                        setFavorites(prev => {
+                            if (!prev.has(id)) return prev;
+                            const newMap = new Map(prev);
+                            const updatedRecipe = { ...(newMap.get(id) as Recipe), _mongoId: data.recipe._id };
+                            newMap.set(id, updatedRecipe);
+                            return newMap;
+                        });
+                    }
+                })
+                .catch(console.error);
+        }
     };
 
     return (
