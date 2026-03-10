@@ -3,6 +3,8 @@ import { Recipe } from '../types/recipe';
 import { getCanonicalId } from '../utils/normalizeRecipeId';
 import { useToast } from './ToastContext';
 import { useModal } from './ModalContext';
+import { useAuth } from './AuthContext';
+import { getMyRecipes } from '../services/recipeService';
 
 interface FavoritesContextType {
     favorites: Map<string, Recipe>;
@@ -15,6 +17,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [favorites, setFavorites] = useState<Map<string, Recipe>>(new Map());
     const { showToast } = useToast();
     const { showModal } = useModal();
+    const { user } = useAuth();
     const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -50,6 +53,46 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         // Only run if not strictly initial mount logic
         localStorage.setItem("flavorforge_favorites", JSON.stringify(Array.from(favorites.values())));
     }, [favorites]);
+
+    useEffect(() => {
+        let isMounted = true;
+        const controller = new AbortController();
+
+        const fetchServerFavorites = async () => {
+            const token = localStorage.getItem('auth_token');
+            if (!user || !token) return;
+            try {
+                const data = await getMyRecipes(token, controller.signal);
+                if (isMounted && Array.isArray(data)) {
+                    setFavorites(prev => {
+                        const newMap = new Map(prev); // Start with existing local storage
+                        let added = 0;
+                        data.forEach((recipe: any) => {
+                            if (recipe && recipe.recipe) {
+                                const canonical = getCanonicalId(recipe.recipe);
+                                if (canonical && !newMap.has(canonical)) {
+                                    newMap.set(canonical, recipe.recipe);
+                                    added++;
+                                }
+                            }
+                        });
+                        return added > 0 ? newMap : prev; // Only trigger render if we actually found missing recipes
+                    });
+                }
+            } catch (err: any) {
+                if (err.name !== 'AbortError') {
+                    console.error("Failed to sync favorites from server:", err);
+                }
+            }
+        };
+
+        fetchServerFavorites();
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+        };
+    }, [user]);
 
     const toggleFavorite = (recipe: Recipe | any) => {
         const id = getCanonicalId(recipe);

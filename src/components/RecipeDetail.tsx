@@ -488,7 +488,7 @@ export const RecipeDetail: React.FC = () => {
                           <span className={`${cookingMode ? 'w-10 h-10 min-w-[40px] text-lg' : 'w-8 h-8 min-w-[32px] text-sm'} flex-shrink-0 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold mr-4`}>
                             {index + 1}
                           </span>
-                          <div className="flex-1 overflow-hidden">
+                          <div className="flex-1 min-w-0">
                             <p className={`${cookingMode ? 'text-lg sm:text-xl md:text-2xl leading-relaxed py-1' : 'text-base leading-relaxed'} text-gray-800 dark:text-gray-200 font-medium break-words`}>
                               {instruction}
                             </p>
