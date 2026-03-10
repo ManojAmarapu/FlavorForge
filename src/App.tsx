@@ -87,8 +87,8 @@ const HeaderAuth = () => {
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen transition-colors duration-300">
-    <div className="container mx-auto px-4 py-6 sm:py-8">
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 sm:gap-3">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="flex justify-end items-center gap-2 sm:gap-3 relative z-50 w-full mb-4 sm:mb-0 sm:absolute sm:top-4 sm:right-4 sm:w-auto">
         <HeaderAuth />
         <ThemeToggle />
       </div>
@@ -104,7 +104,7 @@ const GlobalControls = () => {
   if (isAuthPage) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-2 sm:gap-3">
+    <div className="absolute top-4 right-4 z-50 flex items-center gap-2 sm:gap-3">
       <ThemeToggle />
     </div>
   );

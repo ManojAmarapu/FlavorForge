@@ -25,9 +25,13 @@ export const saveRecipe = async (recipe: Recipe, userId: string, token: string) 
 };
 
 export const getMyRecipes = async (token: string, signal?: AbortSignal) => {
-    const response = await fetch(`${API_URL}/recipes`, {
+    const timestamp = Date.now();
+    const response = await fetch(`${API_URL}/recipes?t=${timestamp}`, {
         headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
         },
         signal
     });
