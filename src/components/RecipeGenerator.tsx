@@ -101,7 +101,7 @@ export const RecipeGenerator: React.FC = () => {
   const displayRecipes = showFavorites ? safeFavorites : recipes;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pt-16 sm:pt-0">
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full">
       <div className="flex justify-center mb-8">
         <div className="flex items-center gap-4">
           <div className="bg-white rounded-full p-3 shadow-lg shadow-emerald-400/20">

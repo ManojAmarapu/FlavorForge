@@ -94,7 +94,7 @@ export const MyRecipes: React.FC = () => {
     }
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pt-16 sm:pt-0 pb-12">
+        <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 pb-12 w-full">
             <div className="mb-2">
                 <button
                     onClick={() => navigate('/app')}

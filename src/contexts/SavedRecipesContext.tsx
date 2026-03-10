@@ -160,12 +160,14 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             return true;
         } catch (error: any) {
             console.error("Save Error:", error);
-            if (error.message?.toLowerCase().includes('already saved')) {
+            const errMsg = (error.message || '').toLowerCase();
+            if (errMsg.includes('already saved') || errMsg.includes('invalid recipe')) {
                 setSavedRecipes(prev => {
                     const newMap = new Map(prev);
                     newMap.set(id, recipe);
                     return newMap;
                 });
+                showToast('It is already added', 'info');
                 return true;
             }
             showToast(error.message || 'Failed to save', 'error');

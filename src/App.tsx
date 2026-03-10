@@ -87,13 +87,15 @@ const HeaderAuth = () => {
 };
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen transition-colors duration-300">
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-      <div className="absolute top-4 right-4 z-50 flex items-center gap-2 sm:gap-3">
+  <div className="min-h-screen transition-colors duration-300 flex flex-col">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 flex-1 flex flex-col">
+      <div className="flex justify-end items-center gap-2 sm:gap-3 mb-6 relative z-50">
         <HeaderAuth />
         <ThemeToggle />
       </div>
-      {children}
+      <div className="flex-1 w-full">
+        {children}
+      </div>
     </div>
   </div>
 );

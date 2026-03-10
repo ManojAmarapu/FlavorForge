@@ -276,7 +276,7 @@ export const RecipeDetail: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="max-w-4xl mx-auto pb-20 pt-16 sm:pt-0"
+        className="max-w-4xl mx-auto pb-20"
       >
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="p-4 sm:p-6">
@@ -477,21 +477,21 @@ export const RecipeDetail: React.FC = () => {
                 </div>
 
                 {/* Navigation Controls */}
-                <div className="flex items-center justify-between mt-8 gap-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div className="flex items-center justify-between mt-8 gap-2 sm:gap-4 bg-white dark:bg-gray-800 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                   <button
                     onClick={prevStep}
                     disabled={currentStep === 0}
-                    className="px-5 py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-all"
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-all text-xs sm:text-base"
                   >
                     Previous
                   </button>
-                  <span className="text-sm font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase">
+                  <span className="text-[10px] sm:text-sm font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase text-center w-24 sm:w-auto">
                     Step {currentStep + 1} of {recipe.instructions.length}
                   </span>
                   <button
                     onClick={nextStep}
                     disabled={currentStep === recipe.instructions.length - 1}
-                    className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white font-medium rounded-xl transition-all shadow-md shadow-emerald-500/20"
+                    className="px-4 py-2 sm:px-5 sm:py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white font-medium rounded-xl transition-all shadow-md shadow-emerald-500/20 text-xs sm:text-base"
                   >
                     Next
                   </button>
