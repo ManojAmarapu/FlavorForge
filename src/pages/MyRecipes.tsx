@@ -44,7 +44,15 @@ export const MyRecipes: React.FC = () => {
             try {
                 setLoading(true);
                 const data = await getMyRecipes(token, controller.signal);
-                setRecipes(data);
+
+                // Segregate Bookmarked Recipes from Favorite Recipes
+                const savedRecipesOnly = data.filter((item: any) => {
+                    const rec = item.recipe || item;
+                    const isFav = rec?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
+                    return !isFav;
+                });
+
+                setRecipes(savedRecipesOnly);
             } catch (err: any) {
                 if (err.name !== 'AbortError') {
                     setError(err.message || 'Failed to load recipes');

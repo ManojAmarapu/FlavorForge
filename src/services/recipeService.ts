@@ -2,7 +2,8 @@ import { Recipe } from '../types/recipe';
 
 const API_URL = 'https://flavorforge-tgch.onrender.com/api';
 
-export const saveRecipe = async (recipe: Recipe, userId: string, token: string) => {
+export const saveRecipe = async (recipe: Recipe, userId: string, token: string, isFavorite: boolean = false) => {
+    const backendRecipeId = isFavorite ? `fav_${recipe.id}` : recipe.id;
     const response = await fetch(`${API_URL}/recipes`, {
         method: 'POST',
         headers: {
@@ -11,8 +12,8 @@ export const saveRecipe = async (recipe: Recipe, userId: string, token: string) 
         },
         body: JSON.stringify({
             userId,
-            recipeId: recipe.id,
-            recipe
+            recipeId: backendRecipeId,
+            recipe: { ...recipe, _isFavoriteFlag: isFavorite }
         }),
     });
 

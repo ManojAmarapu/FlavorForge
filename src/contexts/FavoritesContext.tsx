@@ -69,7 +69,9 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                         let added = 0;
                         data.forEach((item: any) => {
                             const recipe = item.recipe || item;
-                            if (recipe) {
+                            const isFav = recipe?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
+
+                            if (recipe && isFav) {
                                 if (item._id) recipe._mongoId = item._id; // Store exact MongoDB _id for deletions
                                 const canonical = getCanonicalId(recipe);
                                 if (canonical && !newMap.has(canonical)) {
@@ -78,7 +80,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                                 }
                             }
                         });
-                        return added > 0 ? newMap : prev; // Only trigger render if we actually found missing recipes
+                        return added > 0 ? newMap : prev;
                     });
                 }
             } catch (err: any) {
@@ -146,12 +148,11 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return newMap;
         });
 
-        // Sync new favorite to backend
+        // Sync new favorite to backend securely isolated via _isFavoriteFlag routing
         const token = localStorage.getItem('auth_token');
         if (user && token) {
-            saveRecipe(recipe, user.id, token)
+            saveRecipe(recipe, user.id, token, true)
                 .then(data => {
-                    // Patch the new _id into the map so it can be deleted later without a reload
                     if (data && data.recipe && data.recipe._id) {
                         setFavorites(prev => {
                             if (!prev.has(id)) return prev;
