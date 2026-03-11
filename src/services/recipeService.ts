@@ -9,8 +9,15 @@ export const saveRecipe = async (recipe: Recipe | any, userId: string, token: st
 
     const backendRecipeId = isFavorite ? `fav_${baseId}` : baseId;
 
-    // Prevent MongoDB Duplicate Key collisions when copying recipes between maps by stripping the legacy _id
-    const { _id, _mongoId, createdAt, updatedAt, __v, ...cleanRecipe } = recipe;
+    // Prevent MongoDB Duplicate Key collisions and Schema Validation crashes
+    // by strictly pruning all internal or legacy metadata artifacts from cross-mapped payloads.
+    const cleanRecipe = Object.keys(recipe || {}).reduce((acc: any, key) => {
+        if (!key.startsWith('_') && !['userId', 'recipeId', 'id', 'createdAt', 'updatedAt', '__v'].includes(key)) {
+            acc[key] = recipe[key];
+        }
+        return acc;
+    }, {});
+
     const payloadRecipe = { ...cleanRecipe, id: backendRecipeId, _isFavoriteFlag: isFavorite };
 
     const response = await fetch(`${API_URL}/recipes`, {

@@ -181,6 +181,8 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return newMap;
         });
 
+        showToast('Added to Favorites', 'success');
+
         isSyncLocked.current = true;
 
         // Sync new favorite to backend securely isolated via _isFavoriteFlag routing
@@ -201,9 +203,9 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 .catch((error: any) => {
                     console.error("Save Error:", error);
                     const errMsg = (error.message || '').toLowerCase();
-                    if (errMsg.includes('already saved') || errMsg.includes('invalid recipe')) {
+                    if (errMsg.includes('already saved')) {
                         // Keep the optimistic update
-                        showToast('Added to Favorites', 'success');
+                        // The toast for 'Added to Favorites' was already shown optimistically.
                     } else {
                         setFavorites(prev => {
                             const newMap = new Map(prev);
