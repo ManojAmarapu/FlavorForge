@@ -64,11 +64,20 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 if (isMounted && Array.isArray(data)) {
                     setSavedRecipes(() => {
                         const newMap = new Map();
+                        const seenTitles = new Set<string>();
+
                         data.forEach((item: any) => {
                             const recipe = item.recipe || item;
                             const isFav = recipe?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
 
                             if (recipe && !isFav) { // EXACT INVERSE OF FAVORITESCONTEXT
+                                const normalizedTitle = (recipe.title || '').toLowerCase().trim();
+                                if (seenTitles.has(normalizedTitle)) {
+                                    if (item._id) deleteRecipe(item._id, token).catch(() => {});
+                                    return; // Silently prune duplicates
+                                }
+                                seenTitles.add(normalizedTitle);
+
                                 if (item._id) recipe._mongoId = item._id;
                                 const canonical = getCanonicalId(recipe);
                                 if (canonical) {

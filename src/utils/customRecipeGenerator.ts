@@ -133,16 +133,16 @@ export const generateCustomRecipe = (ingredients: string[], variant: number = 0)
     ['rice', 'pasta', 'quinoa'].includes(ing.toLowerCase())
   );
   
-  let cookingTime = '15 minutes';
+  let cookingTime = 15;
   if (cookingStyle === 'quick') {
-    cookingTime = hasMeat ? '20 minutes' : '15 minutes';
+    cookingTime = hasMeat ? 20 : 15;
   } else if (cookingStyle === 'healthy') {
-    cookingTime = hasMeat && hasGrains ? '30 minutes' : hasMeat ? '25 minutes' : '20 minutes';
+    cookingTime = hasMeat && hasGrains ? 30 : hasMeat ? 25 : 20;
   } else {
     if (hasMeat && hasGrains) {
-      cookingTime = '35 minutes';
+      cookingTime = 35;
     } else if (hasMeat || hasGrains) {
-      cookingTime = '25 minutes';
+      cookingTime = 25;
     }
   }
   
@@ -173,7 +173,7 @@ export const generateCustomRecipe = (ingredients: string[], variant: number = 0)
   }
   
   return {
-    id: `custom-${Date.now()}-${variant}`,
+    id: `custom-${dishName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
     title: dishName,
     description: `A delicious ${cookingStyle} recipe made with ${ingredients.slice(0, 3).join(', ')}${ingredients.length > 3 ? ' and more' : ''}. Perfect for ${cookingStyle === 'quick' ? 'busy weeknights' : cookingStyle === 'healthy' ? 'nutritious meals' : 'traditional cooking'}.`,
     cookingTime,

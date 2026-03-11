@@ -66,11 +66,20 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 if (isMounted && Array.isArray(data)) {
                     setFavorites(() => {
                         const newMap = new Map(); // Completely replace local stale cache
+                        const seenTitles = new Set<string>();
+
                         data.forEach((item: any) => {
                             const recipe = item.recipe || item;
                             const isFav = recipe?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
 
                             if (recipe && isFav) {
+                                const normalizedTitle = (recipe.title || '').toLowerCase().trim();
+                                if (seenTitles.has(normalizedTitle)) {
+                                    if (item._id) deleteRecipe(item._id, token).catch(() => {});
+                                    return; // Silently prune duplicates
+                                }
+                                seenTitles.add(normalizedTitle);
+
                                 if (item._id) recipe._mongoId = item._id; // Store exact MongoDB _id for deletions
                                 const canonical = getCanonicalId(recipe);
                                 if (canonical) {

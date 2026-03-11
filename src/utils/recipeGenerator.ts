@@ -1,8 +1,8 @@
 import { Recipe } from '../types/recipe';
 import { RECIPE_POOL } from '../data/recipePool';
 
-// Helper to generate a fast pseudo-unique ID since we aren't saving these to a DB initially
-const generateId = () => Math.random().toString(36).substring(2, 9);
+// Helper to generate a deterministic ID based on the recipe title
+const generateId = (title: string) => title.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
 // Helper to shuffle an array
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -22,12 +22,12 @@ const applyMicroVariations = (base: Omit<Recipe, 'id' | 'createdAt' | 'matchedIn
 
   return {
     ...base,
-    id: generateId(),
+    id: generateId(base.title),
     cookingTime: newTime,
     tags: shuffleArray(base.tags),
     matchedIngredients,
     createdAt: new Date()
-  };
+  } as Recipe;
 };
 
 export const generateRecipes = (availableIngredients: string[]): Recipe[] => {
