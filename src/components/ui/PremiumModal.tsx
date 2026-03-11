@@ -9,13 +9,36 @@ export const PremiumModal: React.FC = () => {
     const { isOpen, title, message, type, confirmText, cancelText, onConfirm, showCancel } = modalState;
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // Handle ESC close
+    // Handle ESC close and Arrow Navigation
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && isOpen) {
+            if (!isOpen) return;
+
+            if (e.key === 'Escape') {
                 closeModal();
+                return;
+            }
+
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (!modalRef.current) return;
+                
+                const buttons = Array.from(modalRef.current.querySelectorAll('button:not([disabled])')) as HTMLElement[];
+                if (buttons.length === 0) return;
+
+                const currentIndex = buttons.indexOf(document.activeElement as HTMLElement);
+                let nextIndex = 0;
+
+                if (e.key === 'ArrowLeft') {
+                    nextIndex = currentIndex > 0 ? currentIndex - 1 : buttons.length - 1;
+                } else if (e.key === 'ArrowRight') {
+                    nextIndex = currentIndex < buttons.length - 1 ? currentIndex + 1 : 0;
+                }
+                
+                buttons[nextIndex].focus();
             }
         };
+
         if (isOpen) {
             window.addEventListener('keydown', handleKeyDown);
         }
