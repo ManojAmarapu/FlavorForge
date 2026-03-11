@@ -218,8 +218,12 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 .finally(() => {
                     isSyncLocked.current = false;
                 });
+        } else {
+            // Safety: reset lock immediately if not logged in so sync is never permanently blocked
+            isSyncLocked.current = false;
         }
     };
+
 
     return (
         <FavoritesContext.Provider value={{ favorites, toggleFavorite }}>

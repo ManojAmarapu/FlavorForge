@@ -96,8 +96,13 @@ export const RecipeDetail: React.FC = () => {
     }
     return () => {
       window.speechSynthesis?.cancel();
+      // Clean up the onvoiceschanged listener to prevent stale callback on unmounted component
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
     };
   }, []);
+
 
   // Timer Cleanup
   useEffect(() => {

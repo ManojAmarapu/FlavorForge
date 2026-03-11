@@ -10,8 +10,10 @@ export interface ModalConfig {
     confirmText?: string;
     cancelText?: string;
     onConfirm?: () => void;
+    onCancel?: () => void;
     showCancel?: boolean;
 }
+
 
 interface ModalContextType {
     modalState: ModalConfig;

@@ -26,8 +26,7 @@ const HeaderAuth = () => {
   const handleLogout = () => {
     setIsLoggingOut(true);
     setTimeout(() => {
-      localStorage.removeItem("auth_token");
-      logout();
+      logout(); // AuthContext internally removes auth_token from localStorage
       navigate('/login', { replace: true });
     }, 300); // Wait for fade out animation
   };

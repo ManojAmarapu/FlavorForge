@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
 
 export const PremiumModal: React.FC = () => {
     const { modalState, closeModal } = useModal();
-    const { isOpen, title, message, type, confirmText, cancelText, onConfirm, showCancel } = modalState;
+    const { isOpen, title, message, type, confirmText, cancelText, onConfirm, onCancel, showCancel } = modalState;
     const modalRef = useRef<HTMLDivElement>(null);
 
     // Handle ESC close and Arrow Navigation
@@ -15,7 +15,7 @@ export const PremiumModal: React.FC = () => {
             if (!isOpen) return;
 
             if (e.key === 'Escape') {
-                closeModal();
+                handleCancel();
                 return;
             }
 
@@ -64,6 +64,11 @@ export const PremiumModal: React.FC = () => {
         closeModal();
     };
 
+    const handleCancel = () => {
+        if (onCancel) onCancel();
+        closeModal();
+    };
+
     const getIcon = () => {
         switch (type) {
             case 'success':
@@ -101,7 +106,7 @@ export const PremiumModal: React.FC = () => {
                     className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-md flex items-center justify-center p-4"
                     onClick={(e) => {
                         if (e.target === e.currentTarget && (!onConfirm || showCancel)) {
-                            closeModal();
+                            handleCancel();
                         }
                     }}
                 >
@@ -131,7 +136,7 @@ export const PremiumModal: React.FC = () => {
                         <div className="flex justify-end gap-3">
                             {showCancel !== false && (
                                 <button
-                                    onClick={closeModal}
+                                    onClick={handleCancel}
                                     className="px-4 py-2 font-medium rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-800 dark:text-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                                 >
                                     {cancelText || 'Cancel'}

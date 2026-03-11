@@ -151,7 +151,7 @@ export const MyRecipes: React.FC = () => {
                         You haven't saved any recipes to your account. Go back to the Generator and save some delicious ideas!
                     </p>
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/app')}
                         className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors shadow-lg"
                     >
                         Find Recipes
@@ -160,7 +160,18 @@ export const MyRecipes: React.FC = () => {
             ) : (
                 <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <AnimatePresence>
-                        {filteredAndSortedRecipes.map((recipe) => {
+                        {filteredAndSortedRecipes.length === 0 && debouncedSearch ? (
+                            <motion.div
+                                key="no-search-results"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="col-span-full text-center py-16 bg-white/50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700"
+                            >
+                                <Search className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
+                                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">No recipes match "{debouncedSearch}"</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">Try a different search term.</p>
+                            </motion.div>
+                        ) : filteredAndSortedRecipes.map((recipe) => {
                             const isFavorited = favorites.has(getCanonicalId(recipe));
                             return (
                                 <motion.div
@@ -180,13 +191,13 @@ export const MyRecipes: React.FC = () => {
                                                 {recipe.title}
                                             </h3>
                                             <div className="flex gap-1 shrink-0">
-                                                <button
-                                                    onClick={() => toggleSaved(recipe)}
-                                                    className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30`}
-                                                    title="Saved Recipe"
+                                                {/* BookmarkCheck — visual-only indicator that recipe is saved */}
+                                                <span
+                                                    className="p-2 rounded-full text-emerald-500 cursor-default"
+                                                    title="Recipe is saved"
                                                 >
                                                     <BookmarkCheck className="h-5 w-5" />
-                                                </button>
+                                                </span>
                                                 <button
                                                     onClick={() => toggleFavorite(recipe)}
                                                     className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${isFavorited

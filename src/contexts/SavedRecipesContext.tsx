@@ -139,6 +139,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     confirmText: "Remove",
                     cancelText: "Cancel",
                     showCancel: true,
+                    onCancel: () => resolve(false), // Resolve the promise on cancel to prevent memory leak
                     onConfirm: () => {
                         pendingDeletions.current.add(id); // Add to pending deletions
                         isSyncLocked.current = true;
@@ -177,6 +178,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     }
                 });
             });
+
         }
 
         // Optimistic Updating UI
