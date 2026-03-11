@@ -28,7 +28,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
   };
 
   const { user } = useAuth();
-  const { savedRecipes, toggleSaved, isSaving } = useSavedRecipes();
+  const { savedRecipes, toggleSaved } = useSavedRecipes();
   const isSaved = recipe ? savedRecipes.has(getCanonicalId(recipe)) : false;
 
   const handleSaveRecipe = async () => {
@@ -122,13 +122,10 @@ export const RecipeCard: React.FC<RecipeCardProps> = memo(({
             {user && (
               <button
                 onClick={handleSaveRecipe}
-                disabled={isSaving || isSaved}
-                className="p-3 rounded-lg bg-white/80 hover:bg-white transition shadow-sm border border-gray-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-3 rounded-lg bg-white/80 hover:bg-white transition shadow-sm border border-gray-200 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center touch-manipulation"
                 title={isSaved ? "Saved" : "Save Recipe"}
               >
-                {isSaving ? (
-                  <div className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full" />
-                ) : isSaved ? (
+                {isSaved ? (
                   <BookmarkCheck className="text-emerald-500" size={20} />
                 ) : (
                   <Bookmark className="text-gray-600 dark:text-gray-400 hover:text-emerald-500 transition-colors" size={20} />

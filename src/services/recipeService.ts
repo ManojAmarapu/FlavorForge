@@ -1,9 +1,13 @@
 import { Recipe } from '../types/recipe';
+import { getCanonicalId } from '../utils/normalizeRecipeId';
 
 const API_URL = 'https://flavorforge-tgch.onrender.com/api';
 
-export const saveRecipe = async (recipe: Recipe, userId: string, token: string, isFavorite: boolean = false) => {
-    const backendRecipeId = isFavorite ? `fav_${recipe.id}` : recipe.id;
+export const saveRecipe = async (recipe: Recipe | any, userId: string, token: string, isFavorite: boolean = false) => {
+    const baseId = getCanonicalId(recipe);
+    if (!baseId) throw new Error("Missing recipe ID during save validation");
+
+    const backendRecipeId = isFavorite ? `fav_${baseId}` : baseId;
 
     // Deep ID mutation to force MongoDB upserts to target different documents
     const payloadRecipe = { ...recipe, id: backendRecipeId, _isFavoriteFlag: isFavorite };

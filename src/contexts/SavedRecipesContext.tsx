@@ -144,8 +144,14 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             });
         }
 
-        // Saving Flow
+        // Optimistic Updating UI
         setIsSaving(true);
+        setSavedRecipes(prev => {
+            const newMap = new Map(prev);
+            newMap.set(id, recipe);
+            return newMap;
+        });
+
         try {
             const data = await saveRecipe(recipe, user.id, token, false);
             setSavedRecipes(prev => {
@@ -160,15 +166,15 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             console.error("Save Error:", error);
             const errMsg = (error.message || '').toLowerCase();
             if (errMsg.includes('already saved') || errMsg.includes('invalid recipe')) {
+                // Keep the optimistic update
+            } else {
                 setSavedRecipes(prev => {
                     const newMap = new Map(prev);
-                    newMap.set(id, recipe);
+                    newMap.delete(id);
                     return newMap;
                 });
-                showToast('It is already added', 'info');
-                return true;
+                showToast(error.message || 'Failed to save', 'error');
             }
-            showToast(error.message || 'Failed to save', 'error');
             return false;
         } finally {
             setIsSaving(false);

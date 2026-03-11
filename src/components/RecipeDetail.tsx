@@ -27,7 +27,7 @@ export const RecipeDetail: React.FC = () => {
   const favorite = recipe ? favorites.has(getCanonicalId(recipe)) : false;
   const [currentStep, setCurrentStep] = useState(0);
   const [isReading, setIsReading] = useState(false);
-  const { savedRecipes, toggleSaved, isSaving } = useSavedRecipes();
+  const { savedRecipes, toggleSaved } = useSavedRecipes();
   const isSaved = recipe ? savedRecipes.has(getCanonicalId(recipe)) : false;
 
   // Smart Assistant States
@@ -300,10 +300,9 @@ export const RecipeDetail: React.FC = () => {
                 </button>
                 <button
                   onClick={handleSaveRecipe}
-                  disabled={isSaving || isSaved}
                   className={`p-2 rounded-full transition-all ${isSaved ? 'text-emerald-500 bg-emerald-50' : 'text-gray-500 hover:text-emerald-500 hover:bg-emerald-50'}`}
                 >
-                  {isSaving ? <div className="animate-spin h-5 w-5 border-2 border-emerald-500 border-t-transparent rounded-full" /> : isSaved ? <BookmarkCheck className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
+                  {isSaved ? <BookmarkCheck className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
                 </button>
                 <button
                   onClick={() => toggleFavorite(recipe)}
