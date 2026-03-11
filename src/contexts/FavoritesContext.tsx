@@ -161,7 +161,20 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                         });
                     }
                 })
-                .catch(console.error);
+                .catch((error: any) => {
+                    console.error("Save Error:", error);
+                    const errMsg = (error.message || '').toLowerCase();
+                    if (errMsg.includes('already saved') || errMsg.includes('invalid recipe')) {
+                        // Keep the optimistic update
+                    } else {
+                        setFavorites(prev => {
+                            const newMap = new Map(prev);
+                            newMap.delete(id);
+                            return newMap;
+                        });
+                        showToast(error.message || 'Failed to save to favorites', 'error');
+                    }
+                });
         }
     };
 
