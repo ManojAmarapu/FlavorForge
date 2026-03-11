@@ -21,6 +21,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const { showModal } = useModal();
     const { user } = useAuth();
     const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isSyncLocked = useRef(false);
 
     useEffect(() => {
         const stored = localStorage.getItem("flavorforge_saved");
@@ -57,6 +58,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
         const controller = new AbortController();
 
         const fetchServerSaved = async () => {
+            if (isSyncLocked.current) return;
             const token = localStorage.getItem('auth_token');
             if (!user || !token) return;
             try {
@@ -97,9 +99,20 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         fetchServerSaved();
 
+        const handleFocus = () => {
+            if (document.visibilityState === 'visible') fetchServerSaved();
+        };
+
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleFocus);
+        const intervalId = setInterval(fetchServerSaved, 15000);
+
         return () => {
             isMounted = false;
             controller.abort();
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleFocus);
+            clearInterval(intervalId);
         };
     }, [user]);
 
@@ -123,6 +136,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     cancelText: "Cancel",
                     showCancel: true,
                     onConfirm: () => {
+                        isSyncLocked.current = true;
                         setSavedRecipes(prev => {
                             const newMap = new Map(prev);
                             newMap.delete(id);
@@ -138,13 +152,20 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                                 newMap.set(id, recipe);
                                 return newMap;
                             });
+                            isSyncLocked.current = false;
                         });
 
                         undoTimeoutRef.current = setTimeout(() => {
                             const targetRecipe = savedRecipes.get(id) || recipe;
                             const mongoId = targetRecipe._mongoId || targetRecipe._id;
                             if (mongoId) {
-                                deleteRecipe(mongoId, token).catch(console.error);
+                                deleteRecipe(mongoId, token)
+                                    .catch(console.error)
+                                    .finally(() => {
+                                        isSyncLocked.current = false;
+                                    });
+                            } else {
+                                isSyncLocked.current = false;
                             }
                         }, 5000);
                         resolve(true);
@@ -154,6 +175,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         // Optimistic Updating UI
+        isSyncLocked.current = true;
         setIsSaving(true);
         setSavedRecipes(prev => {
             const newMap = new Map(prev);
@@ -187,6 +209,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             return false;
         } finally {
             setIsSaving(false);
+            isSyncLocked.current = false;
         }
     };
 

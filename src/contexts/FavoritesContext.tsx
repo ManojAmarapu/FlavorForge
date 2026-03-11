@@ -19,6 +19,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const { showModal } = useModal();
     const { user } = useAuth();
     const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isSyncLocked = useRef(false);
 
     useEffect(() => {
         const stored = localStorage.getItem("flavorforge_favorites");
@@ -59,6 +60,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const controller = new AbortController();
 
         const fetchServerFavorites = async () => {
+            if (isSyncLocked.current) return; // Prevent overwriting optimistic UI
             const token = localStorage.getItem('auth_token');
             if (!user || !token) return;
             try {
@@ -99,9 +101,21 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         fetchServerFavorites();
 
+        // Strict Force Sync Locks (Focus, Visibility, and aggressive 15s polling)
+        const handleFocus = () => {
+            if (document.visibilityState === 'visible') fetchServerFavorites();
+        };
+
+        window.addEventListener('focus', handleFocus);
+        document.addEventListener('visibilitychange', handleFocus);
+        const intervalId = setInterval(fetchServerFavorites, 15000);
+
         return () => {
             isMounted = false;
             controller.abort();
+            window.removeEventListener('focus', handleFocus);
+            document.removeEventListener('visibilitychange', handleFocus);
+            clearInterval(intervalId);
         };
     }, [user]);
 
@@ -118,6 +132,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 cancelText: "Cancel",
                 showCancel: true,
                 onConfirm: () => {
+                    isSyncLocked.current = true;
                     setFavorites(prev => {
                         const newMap = new Map(prev);
                         newMap.delete(id);
@@ -133,6 +148,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                             newMap.set(id, recipe);
                             return newMap;
                         });
+                        isSyncLocked.current = false;
                     });
 
                     undoTimeoutRef.current = setTimeout(() => {
@@ -141,7 +157,13 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                         const mongoId = targetRecipe._mongoId || targetRecipe._id;
                         const token = localStorage.getItem('auth_token');
                         if (mongoId && token) {
-                            deleteRecipe(mongoId, token).catch(console.error);
+                            deleteRecipe(mongoId, token)
+                                .catch(console.error)
+                                .finally(() => {
+                                    isSyncLocked.current = false;
+                                });
+                        } else {
+                            isSyncLocked.current = false;
                         }
                     }, 5000);
                 }
@@ -154,6 +176,8 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             newMap.set(id, recipe);
             return newMap;
         });
+
+        isSyncLocked.current = true;
 
         // Sync new favorite to backend securely isolated via _isFavoriteFlag routing
         const token = localStorage.getItem('auth_token');
@@ -183,6 +207,9 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                         });
                         showToast(error.message || 'Failed to save to favorites', 'error');
                     }
+                })
+                .finally(() => {
+                    isSyncLocked.current = false;
                 });
         }
     };
