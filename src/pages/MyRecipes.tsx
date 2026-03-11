@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { ChefHat, Trash2, Clock, Utensils, ArrowLeft, Search, SlidersHorizontal, Heart } from 'lucide-react';
+import { ChefHat, Trash2, Clock, Utensils, ArrowLeft, Search, SlidersHorizontal, Heart, BookmarkCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useFavorites } from '../contexts/FavoritesContext';
@@ -180,6 +180,13 @@ export const MyRecipes: React.FC = () => {
                                                 {recipe.title}
                                             </h3>
                                             <div className="flex gap-1 shrink-0">
+                                                <button
+                                                    onClick={() => toggleSaved(recipe)}
+                                                    className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30`}
+                                                    title="Saved Recipe"
+                                                >
+                                                    <BookmarkCheck className="h-5 w-5" />
+                                                </button>
                                                 <button
                                                     onClick={() => toggleFavorite(recipe)}
                                                     className={`p-2 rounded-full transition-all duration-200 touch-manipulation active:scale-90 ${isFavorited

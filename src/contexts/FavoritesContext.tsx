@@ -64,9 +64,8 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             try {
                 const data = await getMyRecipes(token, controller.signal);
                 if (isMounted && Array.isArray(data)) {
-                    setFavorites(prev => {
-                        const newMap = new Map(prev); // Start with existing local storage
-                        let added = 0;
+                    setFavorites(() => {
+                        const newMap = new Map(); // Completely replace local stale cache
                         data.forEach((item: any) => {
                             const recipe = item.recipe || item;
                             const isFav = recipe?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
@@ -74,13 +73,12 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                             if (recipe && isFav) {
                                 if (item._id) recipe._mongoId = item._id; // Store exact MongoDB _id for deletions
                                 const canonical = getCanonicalId(recipe);
-                                if (canonical && !newMap.has(canonical)) {
+                                if (canonical) {
                                     newMap.set(canonical, recipe);
-                                    added++;
                                 }
                             }
                         });
-                        return added > 0 ? newMap : prev;
+                        return newMap;
                     });
                 }
             } catch (err: any) {

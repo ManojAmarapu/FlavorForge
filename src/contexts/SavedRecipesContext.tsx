@@ -62,9 +62,8 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             try {
                 const data = await getMyRecipes(token, controller.signal);
                 if (isMounted && Array.isArray(data)) {
-                    setSavedRecipes(prev => {
+                    setSavedRecipes(() => {
                         const newMap = new Map();
-                        let added = 0;
                         data.forEach((item: any) => {
                             const recipe = item.recipe || item;
                             const isFav = recipe?._isFavoriteFlag === true || (item.recipeId && item.recipeId.startsWith('fav_'));
@@ -72,13 +71,12 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                             if (recipe && !isFav) { // EXACT INVERSE OF FAVORITESCONTEXT
                                 if (item._id) recipe._mongoId = item._id;
                                 const canonical = getCanonicalId(recipe);
-                                if (canonical && !newMap.has(canonical)) {
+                                if (canonical) {
                                     newMap.set(canonical, recipe);
-                                    added++;
                                 }
                             }
                         });
-                        return added > 0 ? newMap : prev;
+                        return newMap;
                     });
                 }
             } catch (err: any) {
