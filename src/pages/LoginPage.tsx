@@ -44,8 +44,9 @@ export const LoginPage = () => {
                     showToast(data.message || 'Registration failed', 'error');
                 }
             }
-        } catch (error: any) {
-            showToast('Network error, please try again later.', 'error');
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : 'Network error, please try again later.';
+            showToast(msg, 'error');
         } finally {
             setIsSubmitting(false);
         }

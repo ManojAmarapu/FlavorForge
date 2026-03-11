@@ -137,7 +137,7 @@ export const PremiumModal: React.FC = () => {
                             {showCancel !== false && (
                                 <button
                                     onClick={handleCancel}
-                                    className="px-4 py-2 font-medium rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-800 dark:text-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                                    className="px-4 py-2 font-medium rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-800 dark:text-white/90 transition-colors outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:ring-offset-1"
                                 >
                                     {cancelText || 'Cancel'}
                                 </button>
@@ -145,7 +145,7 @@ export const PremiumModal: React.FC = () => {
 
                             <button
                                 onClick={handleConfirm}
-                                className={`px-4 py-2 font-medium rounded-lg text-white transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${getPrimaryButtonColor()}`}
+                                className={`px-4 py-2 font-medium rounded-lg text-white transition-all shadow-md outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${getPrimaryButtonColor()}`}
                             >
                                 {confirmText || 'Confirm'}
                             </button>

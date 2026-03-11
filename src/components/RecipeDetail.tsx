@@ -62,7 +62,9 @@ export const RecipeDetail: React.FC = () => {
     }
 
     // Saved status now intrinsically managed by global context
-  }, [id, recipe, token, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, token, user]);
+
 
 
 

@@ -81,6 +81,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                                 seenTitles.add(normalizedTitle);
 
                                 if (item._id) recipe._mongoId = item._id;
+                                if (item.createdAt) recipe._createdAt = item.createdAt; // Preserve for sorting/display
                                 const canonical = getCanonicalId(recipe);
                                 
                                 if (canonical && !pendingDeletions.current.has(canonical)) {
@@ -106,6 +107,10 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         window.addEventListener('focus', handleFocus);
         document.addEventListener('visibilitychange', handleFocus);
+        // Stagger start by 7.5s so FavoritesContext and SavedRecipesContext don't hit the API simultaneously
+        const pollDelay = setTimeout(() => {
+            fetchServerSaved();
+        }, 7500);
         const intervalId = setInterval(fetchServerSaved, 15000);
 
         return () => {
@@ -113,6 +118,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             controller.abort();
             window.removeEventListener('focus', handleFocus);
             document.removeEventListener('visibilitychange', handleFocus);
+            clearTimeout(pollDelay);
             clearInterval(intervalId);
         };
     }, [user]);

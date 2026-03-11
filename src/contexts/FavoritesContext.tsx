@@ -83,6 +83,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                                 seenTitles.add(normalizedTitle);
 
                                 if (item._id) recipe._mongoId = item._id; // Store exact MongoDB _id for deletions
+                                if (item.createdAt) recipe._createdAt = item.createdAt; // Preserve timestamp for sorting
                                 const canonical = getCanonicalId(recipe);
                                 if (canonical && !pendingDeletions.current.has(canonical)) {
                                     newMap.set(canonical, recipe);

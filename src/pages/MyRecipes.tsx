@@ -56,6 +56,12 @@ export const MyRecipes: React.FC = () => {
                 break;
             case 'recent':
             default:
+                // Sort newest first using the preserved _createdAt from backend
+                result.sort((a, b) => {
+                    const dateA = (a as any)._createdAt ? new Date((a as any)._createdAt).getTime() : 0;
+                    const dateB = (b as any)._createdAt ? new Date((b as any)._createdAt).getTime() : 0;
+                    return dateB - dateA;
+                });
                 break;
         }
         return result;
@@ -262,7 +268,11 @@ export const MyRecipes: React.FC = () => {
                                     </div>
 
                                     <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 text-xs text-gray-500 dark:text-gray-400 text-center">
-                                        Added {(recipe as any).createdAt ? new Date((recipe as any).createdAt).toLocaleDateString() : 'Recently'}
+                                        Added {(recipe as any)._createdAt
+                                            ? new Date((recipe as any)._createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                                            : (recipe as any).createdAt
+                                                ? new Date((recipe as any).createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                                                : 'Recently'}
                                     </div>
                                 </motion.div>
                             );
