@@ -18,6 +18,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const { showToast } = useToast();
     const { showModal } = useModal();
     const { user } = useAuth();
+    const pendingDeletions = useRef<Set<string>>(new Set());
     const isSyncLocked = useRef(false);
 
     useEffect(() => {
@@ -83,7 +84,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
                                 if (item._id) recipe._mongoId = item._id; // Store exact MongoDB _id for deletions
                                 const canonical = getCanonicalId(recipe);
-                                if (canonical) {
+                                if (canonical && !pendingDeletions.current.has(canonical)) {
                                     newMap.set(canonical, recipe);
                                 }
                             }
@@ -134,6 +135,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 cancelText: "Cancel",
                 showCancel: true,
                 onConfirm: () => {
+                    pendingDeletions.current.add(id); // Block background hydration
                     isSyncLocked.current = true;
                     setFavorites(prev => {
                         const newMap = new Map(prev);
@@ -145,6 +147,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
                     showToast('Removed from Favorites', 'info', 'Undo', () => {
                         clearTimeout(localTimeout);
+                        pendingDeletions.current.delete(id);
                         setFavorites(prev => {
                             const newMap = new Map(prev);
                             newMap.set(id, existingRecipe || recipe);
@@ -155,6 +158,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
                     localTimeout = setTimeout(() => {
                         // Time expires, removal finalized
+                        pendingDeletions.current.delete(id);
                         const token = localStorage.getItem('auth_token');
                         if (mongoId && token) {
                             deleteRecipe(mongoId, token)

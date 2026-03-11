@@ -20,6 +20,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const { showToast } = useToast();
     const { showModal } = useModal();
     const { user } = useAuth();
+    const pendingDeletions = useRef<Set<string>>(new Set());
     const isSyncLocked = useRef(false);
 
     useEffect(() => {
@@ -81,7 +82,8 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
                                 if (item._id) recipe._mongoId = item._id;
                                 const canonical = getCanonicalId(recipe);
-                                if (canonical) {
+                                
+                                if (canonical && !pendingDeletions.current.has(canonical)) {
                                     newMap.set(canonical, recipe);
                                 }
                             }
@@ -138,6 +140,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                     cancelText: "Cancel",
                     showCancel: true,
                     onConfirm: () => {
+                        pendingDeletions.current.add(id); // Add to pending deletions
                         isSyncLocked.current = true;
                         setSavedRecipes(prev => {
                             const newMap = new Map(prev);
@@ -149,6 +152,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
                         showToast('Recipe removed', 'info', 'Undo', () => {
                             clearTimeout(localTimeout);
+                            pendingDeletions.current.delete(id); // Remove from pending deletions on undo
                             setSavedRecipes(prev => {
                                 const newMap = new Map(prev);
                                 newMap.set(id, existingRecipe || recipe);
@@ -158,6 +162,7 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                         });
 
                         localTimeout = setTimeout(() => {
+                            pendingDeletions.current.delete(id); // Remove from pending deletions after timeout
                             if (mongoId) {
                                 deleteRecipe(mongoId, token)
                                     .catch(console.error)

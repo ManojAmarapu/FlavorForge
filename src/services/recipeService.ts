@@ -9,8 +9,9 @@ export const saveRecipe = async (recipe: Recipe | any, userId: string, token: st
 
     const backendRecipeId = isFavorite ? `fav_${baseId}` : baseId;
 
-    // Deep ID mutation to force MongoDB upserts to target different documents
-    const payloadRecipe = { ...recipe, id: backendRecipeId, _isFavoriteFlag: isFavorite };
+    // Prevent MongoDB Duplicate Key collisions when copying recipes between maps by stripping the legacy _id
+    const { _id, _mongoId, createdAt, updatedAt, __v, ...cleanRecipe } = recipe;
+    const payloadRecipe = { ...cleanRecipe, id: backendRecipeId, _isFavoriteFlag: isFavorite };
 
     const response = await fetch(`${API_URL}/recipes`, {
         method: 'POST',
