@@ -18,7 +18,6 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const { showToast } = useToast();
     const { showModal } = useModal();
     const { user } = useAuth();
-    const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isSyncLocked = useRef(false);
 
     useEffect(() => {
@@ -124,6 +123,9 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         if (!id) return;
 
         if (favorites.has(id)) {
+            const existingRecipe = favorites.get(id) as any;
+            const mongoId = existingRecipe?._mongoId || existingRecipe?._id || (recipe as any)._mongoId || (recipe as any)._id;
+
             showModal({
                 title: "Remove from Favorites?",
                 message: "Are you sure you want to remove this recipe from favorites?",
@@ -139,22 +141,20 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                         return newMap;
                     });
 
-                    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                    let localTimeout: ReturnType<typeof setTimeout>;
 
                     showToast('Removed from Favorites', 'info', 'Undo', () => {
-                        if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                        clearTimeout(localTimeout);
                         setFavorites(prev => {
                             const newMap = new Map(prev);
-                            newMap.set(id, recipe);
+                            newMap.set(id, existingRecipe || recipe);
                             return newMap;
                         });
                         isSyncLocked.current = false;
                     });
 
-                    undoTimeoutRef.current = setTimeout(() => {
+                    localTimeout = setTimeout(() => {
                         // Time expires, removal finalized
-                        const targetRecipe = favorites.get(id) || recipe;
-                        const mongoId = targetRecipe._mongoId || targetRecipe._id;
                         const token = localStorage.getItem('auth_token');
                         if (mongoId && token) {
                             deleteRecipe(mongoId, token)
@@ -199,6 +199,7 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     const errMsg = (error.message || '').toLowerCase();
                     if (errMsg.includes('already saved') || errMsg.includes('invalid recipe')) {
                         // Keep the optimistic update
+                        showToast('Added to Favorites', 'success');
                     } else {
                         setFavorites(prev => {
                             const newMap = new Map(prev);

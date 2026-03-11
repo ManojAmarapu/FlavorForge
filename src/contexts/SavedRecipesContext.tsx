@@ -20,7 +20,6 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const { showToast } = useToast();
     const { showModal } = useModal();
     const { user } = useAuth();
-    const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isSyncLocked = useRef(false);
 
     useEffect(() => {
@@ -127,6 +126,9 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         if (savedRecipes.has(id)) {
+            const existingRecipe = savedRecipes.get(id) as any;
+            const mongoId = existingRecipe?._mongoId || existingRecipe?._id;
+
             return new Promise((resolve) => {
                 showModal({
                     title: "Remove Saved Recipe?",
@@ -143,21 +145,19 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
                             return newMap;
                         });
 
-                        if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                        let localTimeout: ReturnType<typeof setTimeout>;
 
                         showToast('Recipe removed', 'info', 'Undo', () => {
-                            if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+                            clearTimeout(localTimeout);
                             setSavedRecipes(prev => {
                                 const newMap = new Map(prev);
-                                newMap.set(id, recipe);
+                                newMap.set(id, existingRecipe || recipe);
                                 return newMap;
                             });
                             isSyncLocked.current = false;
                         });
 
-                        undoTimeoutRef.current = setTimeout(() => {
-                            const targetRecipe = savedRecipes.get(id) || recipe;
-                            const mongoId = targetRecipe._mongoId || targetRecipe._id;
+                        localTimeout = setTimeout(() => {
                             if (mongoId) {
                                 deleteRecipe(mongoId, token)
                                     .catch(console.error)
@@ -197,7 +197,8 @@ export const SavedRecipesProvider: React.FC<{ children: React.ReactNode }> = ({ 
             console.error("Save Error:", error);
             const errMsg = (error.message || '').toLowerCase();
             if (errMsg.includes('already saved') || errMsg.includes('invalid recipe')) {
-                // Keep the optimistic update
+                // Keep the optimistic update and show the toast anyway so UI aligns!
+                showToast('Recipe saved!', 'success');
             } else {
                 setSavedRecipes(prev => {
                     const newMap = new Map(prev);

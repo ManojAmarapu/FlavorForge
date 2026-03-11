@@ -108,7 +108,7 @@ export const MyRecipes: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <ChefHat className="h-8 w-8 text-emerald-500" />
                     <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
-                        My Saved Recipes
+                        My Saved Recipes ({recipes.length})
                     </h1>
                 </div>
 
